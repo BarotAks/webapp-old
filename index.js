@@ -69,7 +69,7 @@ const Assignment = sequelize.define('assignment', {
     allowNull: false,
     validate: {
       min: 1,
-      max: 100,
+      max: 10,
     },
   },
   num_of_attempts: {
@@ -77,7 +77,7 @@ const Assignment = sequelize.define('assignment', {
     allowNull: false,
     validate: {
       min: 1,
-      max: 100,
+      max: 10,
     },
   },
   deadline: {
@@ -156,6 +156,10 @@ async function initializeDatabase() {
     await sequelize.sync();
     console.log('Database synchronized.');
     await loadAccountsFromCSV();
+    
+    app.listen(4000, () => {
+      console.log('Server is running on port 4000');
+    });
   } catch (error) {
     console.error('Error initializing database:', error);
   }
@@ -169,38 +173,45 @@ async function authenticateUser(req, res, next) {
   console.log('Received Authorization Header:', authHeader);
 
   if (!authHeader) {
-    res.status(401).json({ error: 'Unauthorized' });
-  } else {
-    const [, token] = authHeader.split(' ');
-    console.log('Extracted Token:', token);
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
-    const decoded = Buffer.from(token, 'base64').toString('utf-8').split(':');
-    console.log('Decoded Credentials:', decoded);
+  const [, token] = authHeader.split(' ');
+  console.log('Extracted Token:', token);
 
-    const email = decoded[0];
-    const password = decoded[1];
+  const decoded = Buffer.from(token, 'base64').toString('utf-8').split(':');
+  console.log('Decoded Credentials:', decoded);
 
-    try {
-      const account = await Account.findOne({
-        where: {
-          email: email,
-        },
-      });
+  const email = decoded[0];
+  const password = decoded[1];
 
-      if (account && await bcrypt.compare(password, account.password)) {
-        console.log('Authentication successful for account:', account.email);
-        req.user = account;
-        next(); // Call the next middleware or route handler
-      } else {
-        console.log('Authentication failed for email:', email);
-        res.status(401).json({ error: 'Unauthorized' });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const account = await Account.findOne({
+      where: {
+        email: email,
+      },
+    });
+
+    if (!account) {
+      console.log('Account not found for email:', email);
+      return res.status(401).json({ error: 'Unauthorized' });
     }
+
+    const passwordMatch = await bcrypt.compare(password, account.password);
+    if (!passwordMatch) {
+      console.log('Authentication failed for email:', email);
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    console.log('Authentication successful for account:', account.email);
+    req.user = account;
+    next(); // Call the next middleware or route handler
+  } catch (error) {
+    console.error('Error during authentication:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
 
 
 async function isAssignmentCreator(req, res, next) {
@@ -256,38 +267,110 @@ async function isAssignmentCreator(req, res, next) {
     }
   });
   
-// GET endpoint to fetch assignment details by ID
-  app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
-    const { id } = req.params;
+  // // GET endpoint to fetch assignment details by ID
+  // app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
+  //   const { id } = req.params;
     
-    try {
-      // Find the assignment by ID and ensure the logged-in user is the creator
-      const assignment = await Assignment.findOne({
-        where: {
-          id,
-          creatorId: req.user.id,
-        },
-      });
+  //   try {
+  //     // Find the assignment by ID and ensure the logged-in user is the creator
+  //     const assignment = await Assignment.findOne({
+  //       where: {
+  //         id,
+  //         creatorId: req.user.id,
+  //       },
+  //     });
 
-      if (assignment) {
-        res.status(200).json({
-          id: assignment.id,
-          name: assignment.name,
-          points: assignment.points,
-          num_of_attempts: assignment.num_of_attempts,
-          deadline: assignment.deadline,
-          assignment_created: assignment.assignment_created,
-          assignment_updated: assignment.assignment_updated,
-        });
-      } else {
-        res.status(404).json({ error: 'Not Found' });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+  //     if (assignment) {
+  //       res.status(200).json({
+  //         id: assignment.id,
+  //         name: assignment.name,
+  //         points: assignment.points,
+  //         num_of_attempts: assignment.num_of_attempts,
+  //         deadline: assignment.deadline,
+  //         assignment_created: assignment.assignment_created,
+  //         assignment_updated: assignment.assignment_updated,
+  //       });
+  //     } else {
+  //       res.status(404).json({ error: 'Not Found' });
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({ error: 'Internal Server Error' });
+  //   }
+  // });
+
+  // GET endpoint to fetch assignments created by the logged-in user
+app.get('/v1/assignments', authenticateUser, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    // Find all assignments created by the logged-in user
+    const assignments = await Assignment.findAll({
+      where: {
+        creatorId: userId,
+      },
+    });
+
+    if (assignments.length > 0) {
+      // If assignments are found, return them
+      const formattedAssignments = assignments.map((assignment) => ({
+        id: assignment.id,
+        name: assignment.name,
+        points: assignment.points,
+        num_of_attempts: assignment.num_of_attempts,
+        deadline: assignment.deadline,
+        assignment_created: assignment.assignment_created,
+        assignment_updated: assignment.assignment_updated,
+      }));
+      res.status(200).json(formattedAssignments);
+    } else {
+      // If no assignments are found, return a 404 Not Found response
+      res.status(404).json({ error: 'No Assignments Found' });
     }
-  });
+  } catch (error) {
+    // Handle any errors that occur during the database query
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
+app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // Find the assignment by ID and ensure it was created by the logged-in user
+    const assignment = await Assignment.findOne({
+      where: {
+        id,
+        creatorId: userId,
+      },
+    });
+
+    if (assignment) {
+      // If assignment is found, return it
+      const formattedAssignment = {
+        id: assignment.id,
+        name: assignment.name,
+        points: assignment.points,
+        num_of_attempts: assignment.num_of_attempts,
+        deadline: assignment.deadline,
+        assignment_created: assignment.assignment_created,
+        assignment_updated: assignment.assignment_updated,
+      };
+      res.status(200).json(formattedAssignment);
+    } else {
+      // If no assignment is found, return a 404 Not Found response
+      res.status(404).json({ error: 'Assignment Not Found' });
+    }
+  } catch (error) {
+    // Handle any errors that occur during the database query
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+  
   
   // PUT endpoint to update an assignment (only by the creator)
   app.put('/v1/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
@@ -313,7 +396,9 @@ async function isAssignmentCreator(req, res, next) {
     }
   });
 
-  // DELETE endpoint to delete an assignment (only by the creator)
+  
+  
+// DELETE endpoint to delete an assignment (only by the creator)
   app.delete('/v1/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
     const { id } = req.params;
     try {
@@ -330,31 +415,51 @@ async function isAssignmentCreator(req, res, next) {
     }
   });
 
-
-app.get('/healthz', async (req, res) => {
-  if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
-    res.status(400).json({ error: 'Bad Request: Parameters or body not allowed' });
-  } else {
-    try {
-      // Check database connection
-      await sequelize.authenticate();
-      console.log('Database connection successful.');
-      // If everything is fine, send a success response
-      res.status(200).send('OK');
-    } catch (error) {
-      // If any health check fails, send a 500 Internal Server Error response
-      console.error('Health check failed:', error);
-      res.status(500).json({ error: 'Internal Server Error: Health check failed' });
+  
+  app.get('/healthz', async (req, res) => {
+    if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+      res.status(400).json({ error: 'Bad Request: Parameters or body not allowed' });
+    } else {
+      try {
+        // Check database connection
+        await sequelize.authenticate();
+        console.log('Database connection successful.');
+        // If the database connection is successful, return a 200 OK response
+        res.status(200).send('OK');
+      } catch (error) {
+        // If there's a database connection issue, return a 503 status code
+        if (error.name === 'SequelizeConnectionError' || error.name === 'SequelizeHostNotFoundError') {
+          console.error('Service unavailable:', error);
+          res.status(503).json({ error: 'Service Unavailable' });
+        } else {
+          // For all other errors, return a 503 status code indicating service unavailability
+          console.error('Health check failed:', error);
+          res.status(503).json({ error: 'Service Unavailable' });
+        }
+      }
     }
-  }
+  });
+  
+  
+  
+
+  
+// Catch unsupported HTTP methods
+app.use((req, res) => {
+  res.status(405).json({ error: 'Method Not Allowed' });
 });
 
 
+// PATCH endpoint to update assignments
+app.patch('/v1/assignments/:id', (req, res) => {
+  res.status(405).json({ error: 'Method Not Allowed' });
+});
 
-  sequelize.sync().then(() => {
-    loadAccountsFromCSV();
-  });
+
+  // sequelize.sync().then(() => {
+  //   loadAccountsFromCSV();
+  // });
   
-  app.listen(4000, () => {
-    console.log('Server is running on port 4000');
-  });
+  // app.listen(4000, () => {
+  //   console.log('Server is running on port 4000');
+  // });
