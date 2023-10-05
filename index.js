@@ -256,6 +256,38 @@ async function isAssignmentCreator(req, res, next) {
     }
   });
   
+  // GET endpoint to fetch assignment details by ID
+  app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
+    const { id } = req.params;
+    
+    try {
+      // Find the assignment by ID and ensure the logged-in user is the creator
+      const assignment = await Assignment.findOne({
+        where: {
+          id,
+          creatorId: req.user.id,
+        },
+      });
+
+      if (assignment) {
+        res.status(200).json({
+          id: assignment.id,
+          name: assignment.name,
+          points: assignment.points,
+          num_of_attempts: assignment.num_of_attempts,
+          deadline: assignment.deadline,
+          assignment_created: assignment.assignment_created,
+          assignment_updated: assignment.assignment_updated,
+        });
+      } else {
+        res.status(404).json({ error: 'Not Found' });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  });
+
   
   
   // PUT endpoint to update an assignment (only by the creator)
@@ -281,8 +313,10 @@ async function isAssignmentCreator(req, res, next) {
       res.status(400).json({ error: 'Bad Request' });
     }
   });
+
   
-  // DELETE endpoint to delete an assignment (only by the creator)
+  
+// DELETE endpoint to delete an assignment (only by the creator)
   app.delete('/v1/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
     const { id } = req.params;
     try {
@@ -298,12 +332,35 @@ async function isAssignmentCreator(req, res, next) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
+
+  
+ 
+
+
+app.get('/healthz', async (req, res) => {
+  if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
+    res.status(400).json({ error: 'Bad Request: Parameters or body not allowed' });
+  } else {
+    try {
+      // Check database connection
+      await sequelize.authenticate();
+      console.log('Database connection successful.');
+      // If everything is fine, send a success response
+      res.status(200).send('OK');
+    } catch (error) {
+      // If any health check fails, send a 500 Internal Server Error response
+      console.error('Health check failed:', error);
+      res.status(500).json({ error: 'Internal Server Error: Health check failed' });
+    }
+  }
+});
+
   
 
   sequelize.sync().then(() => {
     loadAccountsFromCSV();
   });
   
-  app.listen(3000, () => {
-    console.log('Server is running on port 3000');
+  app.listen(4000, () => {
+    console.log('Server is running on port 4000');
   });
