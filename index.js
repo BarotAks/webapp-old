@@ -287,7 +287,7 @@ async function isAssignmentCreator(req, res, next) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-  
+
   
   // PUT endpoint to update an assignment (only by the creator)
   app.put('/v1/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
