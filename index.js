@@ -256,7 +256,7 @@ async function isAssignmentCreator(req, res, next) {
     }
   });
   
-  // GET endpoint to fetch assignment details by ID
+// GET endpoint to fetch assignment details by ID
   app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
     const { id } = req.params;
     
@@ -287,7 +287,6 @@ async function isAssignmentCreator(req, res, next) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-
   
   
   // PUT endpoint to update an assignment (only by the creator)
@@ -314,9 +313,7 @@ async function isAssignmentCreator(req, res, next) {
     }
   });
 
-  
-  
-// DELETE endpoint to delete an assignment (only by the creator)
+  // DELETE endpoint to delete an assignment (only by the creator)
   app.delete('/v1/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
     const { id } = req.params;
     try {
@@ -332,9 +329,6 @@ async function isAssignmentCreator(req, res, next) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-
-  
- 
 
 
 app.get('/healthz', async (req, res) => {
@@ -355,7 +349,7 @@ app.get('/healthz', async (req, res) => {
   }
 });
 
-  
+
 
   sequelize.sync().then(() => {
     loadAccountsFromCSV();
