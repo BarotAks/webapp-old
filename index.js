@@ -256,7 +256,6 @@ async function isAssignmentCreator(req, res, next) {
     }
   });
   
-
 // GET endpoint to fetch assignment details by ID
   app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
     const { id } = req.params;
@@ -330,7 +329,6 @@ async function isAssignmentCreator(req, res, next) {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-
 
 
 app.get('/healthz', async (req, res) => {
