@@ -1,13 +1,18 @@
 {
   "name": "nodeapp",
   "version": "1.0.0",
-  "description": "",
+  "description": "Your application description",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "test": "mocha",
+    "test:integration": "mocha test/integration/*.test.js",
+    "test:unit": "mocha test/unit/*.test.js",
+    "db:migrate": "sequelize db:migrate",
+    "db:seed": "sequelize db:seed:all"
   },
   "keywords": [],
-  "author": "",
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "basic-auth": "^2.0.1",
@@ -18,5 +23,10 @@
     "mysql2": "^3.6.1",
     "papaparse": "^5.4.1",
     "sequelize": "^6.33.0"
+  },
+  "devDependencies": {
+    "mocha": "^9.0.0",
+    "chai": "^4.3.4",
+    "supertest": "^6.1.3"
   }
 }
