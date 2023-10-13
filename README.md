@@ -1,6 +1,5 @@
 # webapp
 
-
 # Web Application Development
 
 This repository contains a web application built with Express.js and Sequelize, a Node.js ORM, for managing assignments and user accounts.
