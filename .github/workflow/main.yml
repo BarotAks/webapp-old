@@ -55,3 +55,14 @@ jobs:
       run: npm test:integration
       env:
         BASE_URL: http://localhost:4000
+
+    - name: Set Status Checks
+      run: |
+        if [ ${{ job.status }} == "success" ]; then
+          echo "Integration Tests Passed!"
+        else
+          echo "Integration Tests Failed!"
+          exit 1
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
