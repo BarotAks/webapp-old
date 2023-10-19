@@ -457,6 +457,7 @@ app.patch('/v1/assignments/:id', (req, res) => {
   res.status(405).json({ error: 'Method Not Allowed' });
 });
 
+module.exports = app; // Export the Express app instance
 
   // sequelize.sync().then(() => {
   //   loadAccountsFromCSV();

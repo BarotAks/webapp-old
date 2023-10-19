@@ -1,0 +1,65 @@
+name: CI CI_Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: CI_Workflow
+    runs-on: ubuntu-latest
+    
+    # services:
+    #   mysql:
+    #     image: mysql:latest
+    #     env:
+    #       MYSQL_ROOT_PASSWORD: Pass1234
+    #     ports:
+    #       - 3306:3306
+    #     options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v2
+    
+    - name: Set Up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 14
+      
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Set BASE_URL environment variable
+      run: echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+
+
+    - name: Display .env file
+      env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+      run: |
+        echo "DB_USER=root" >> .env
+        echo "DB_PASSWORD=Pass1234" >> .env
+        echo "DB_NAME=webapp" >> .env
+        echo "PORT=3306" >> .env
+        echo "BASE_URL=http://localhost:4000" >> .env
+        cat .env
+
+    - name: configuremysql
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y curl
+        sudo systemctl start mysql
+        sudo systemctl status mysql
+        mysql -u root -p"root" -e "CREATE DATABASE webapp;"
+
+    - name: Run Unit Tests
+      # run: npm test
+      run: npm run test:unit
+      env:
+        BASE_URL: http://localhost:4000
+      
+
