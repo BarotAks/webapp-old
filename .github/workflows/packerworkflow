@@ -1,0 +1,53 @@
+name: Packer Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  packer:
+    name: Packer Workflow
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Print Current Directory
+        run: |
+          pwd
+          ls -l
+        shell: bash
+
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+        with:
+          version: '1.8.6'
+
+      - name: Create TAR Archive
+        run: tar -czf /home/runner/work/webapp/webapp.tar.gz .
+
+      - name: Initialize Packer
+        run: packer init .
+
+      - name: Run 'packer fmt'
+        run: |
+          packer fmt -check aws-debian.pkr.hcl
+
+      - name: Print Contents of Directory
+        run: ls -l /home/runner/work/webapp/
+
+      - name: Check file existence and permissions
+        run: |
+          ls -l /home/runner/work/webapp/
+        shell: bash
+
+      - name: Print the content of the tar command
+        run: |
+          ls -l /home/runner/work/webapp/webapp.tar.gz
+        shell: bash
+
+      - name: Run 'packer validate'
+        run: |
+          packer validate aws-debian.pkr.hcl
