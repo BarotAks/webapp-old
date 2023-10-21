@@ -23,8 +23,8 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v2
     
-    - name: Navigate to webapp Directory
-      run: cd webapp
+    # - name: Navigate to webapp Directory
+    #   run: cd webapp
     
     - name: Set Up Node.js
       uses: actions/setup-node@v2
