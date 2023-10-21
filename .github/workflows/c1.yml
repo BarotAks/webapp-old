@@ -62,4 +62,44 @@ jobs:
       env:
         BASE_URL: http://localhost:4000
       
+    # - name: Compress webapp
+    #   run: |
+    #     cd .. 
+    #     zip -r webapp.zip webapp/
+    #     cd webapp
 
+
+
+  packer:
+
+    name: Packer CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Download webapp repository
+        run: zip -r webapp.zip ./
+ 
+      - name: Setup Packer
+        uses: hashicorp/setup-packer@main
+
+        with:
+          version: '1.8.6'
+
+      - name: Initialize Packer
+        run: packer init .
+
+      - name: Run `packer fmt`
+        run: |
+          packer fmt -check aws-debian.pkr.hcl
+
+      # - name: Run `Build the webapp artifact`
+      #   run: |
+      #     packer build aws-debian.pkr.hcl
+
+      - name: Run `packer validate`
+        run: |
+          packer validate aws-debian.pkr.hcl
+      
