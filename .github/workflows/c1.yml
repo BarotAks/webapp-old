@@ -116,7 +116,7 @@ jobs:
 
       - name: Print the content of the tar command
         run: |
-          cat aws-debian.pkr.hcl
+          ls -l /home/runner/work/webapp/webapp.tar.gz
         shell: bash
 
 
