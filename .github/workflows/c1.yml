@@ -85,20 +85,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-
-      # - name: Compress webapp
-      #   run: |
-      #     cd webapp
-      #     zip -r webapp.zip .
-      #   # working-directory: ${{ github.workspace }}
-      
- 
+       
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
 
         with:
           version: '1.8.6'
 
+      - name: Create TAR Archive
+        run: tar -czf /home/runner/work/webapp/webapp.tar.gz .
+    
       - name: Initialize Packer
         run: packer init .
 
