@@ -3,6 +3,11 @@ variable "aws_profile" {
   default = "dev"
 }
 
+variable "webapp_archive" {
+  type    = string
+  default = "webapp.tar.gz"
+}
+
 variable "region" {
   type    = string
   default = "us-east-1"
