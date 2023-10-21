@@ -52,6 +52,7 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y curl
+        cd webapp  # Navigate to the webapp directory
         sudo systemctl start mysql
         sudo systemctl status mysql
         mysql -u root -p"root" -e "CREATE DATABASE webapp;"
@@ -82,8 +83,8 @@ jobs:
       - name: Compress webapp
         run: |
           cd webapp
-          zip -r ../webapp.zip .
-        working-directory: ${{ github.workspace }}
+          zip -r webapp.zip .
+        # working-directory: ${{ github.workspace }}
       
  
       - name: Setup Packer
