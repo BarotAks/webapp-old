@@ -101,8 +101,8 @@ build {
     inline = [
       "sudo apt-get install tar gzip", # Making sure tar and gzip are installed
       "cd /home/admin",
-      "tar -xzf webapp.tar.gz",         # Unzip and extract the TAR archive
-      "npm install"       # Install dependencies
+      "tar -xzf webapp.tar.gz", # Unzip and extract the TAR archive
+      "npm install"             # Install dependencies
     ]
   }
 
