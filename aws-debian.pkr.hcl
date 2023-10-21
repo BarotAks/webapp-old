@@ -66,6 +66,7 @@ build {
       "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'",
+      "mv /home/runner/work/webapp/webapp.tar.gz /home/admin/", # Move the file to /home/admin directory
       "cd /home/admin",
       "tar -xzf webapp.tar.gz", # Unzip and extract the TAR archive
       "npm install"             # Install dependencies

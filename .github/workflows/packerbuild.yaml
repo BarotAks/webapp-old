@@ -49,12 +49,9 @@ jobs:
         uses: hashicorp/setup-packer@main
         with:
           version: '1.8.6'
-      
-      # - name: Compress webapp
-      #   run: |
-      #     cd .. 
-      #     zip -r webapp.zip webapp/
-      #     cd webapp      
+        
+      - name: Create TAR Archive
+        run: tar -czf /home/runner/work/webapp/webapp.tar.gz .    
 
 
       - name: Initialize Packer
