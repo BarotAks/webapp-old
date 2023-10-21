@@ -3,11 +3,6 @@ variable "aws_profile" {
   default = "dev"
 }
 
-variable "webapp_archive" {
-  type    = string
-  default = "webapp.tar.gz"
-}
-
 variable "region" {
   type    = string
   default = "us-east-1"
@@ -46,42 +41,53 @@ source "amazon-ebs" "webapp" {
   ami_name      = "webapp-ami-${local.timestamp}"
   instance_type = var.instance_type
   region        = var.region
-
-  source_ami   = "ami-06db4d78cb1d3bbf9"
-  ssh_username = var.ssh_username
-  ami_users    = ["547336217625", "711372696784"] # Replace with the DEV,DEMO AWS Account ID
+  source_ami    = "ami-06db4d78cb1d3bbf9"
+  ssh_username  = var.ssh_username
+  ami_users     = ["547336217625", "711372696784"] # Replace with the DEV,DEMO AWS Account ID
 }
+
+# ... (previous code remains unchanged)
 
 build {
   sources = ["source.amazon-ebs.webapp"]
 
-
+  # Update system and install packages
   provisioner "shell" {
     inline = [
       "sudo apt update",
       "sudo apt -y upgrade",
-      "sudo apt -y install nodejs npm mariadb-server mariadb-client tar gzip",
-      "sudo systemctl start mariadb",
-      "sudo systemctl enable mariadb",
-      "sudo mysql -u root -proot -e 'CREATE DATABASE webapp;'",
-      "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
-      "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
-      "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'",
-      "echo 'Current Directory: $(pwd)'",                                               # Print current directory
-      "echo 'Contents of the Directory: $(ls)'",                                        # List contents of the directory
-      "echo 'Path to tar file: /home/runner/work/webapp/webapp.tar.gz'",                # Print path to tar file
-      "if [ -f /home/runner/work/webapp/webapp.tar.gz ]; then",                         # Check if the file exists
-      "  tar -xzf /home/runner/work/webapp/webapp.tar.gz -C /home/runner/work/webapp/", # Unzip and extract the TAR archive in the current directory
-      "else",
-      "  echo 'Error: Tar file not found!'", # Print error message if the file doesn't exist
-      "  exit 1",                            # Exit with non-zero status to indicate failure
-      "fi",
-      "cd /home/runner/work/webapp",
-      "npm install" # Install dependencies
+      "sudo apt -y install nodejs npm mariadb-server mariadb-client"
     ]
   }
 
+  # Set up MySQL database
+  provisioner "shell" {
+    inline = [
+      "sudo mysql -u root -proot -e 'CREATE DATABASE webapp;'",
+      "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
+      "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
+      "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'"
+    ]
+  }
 
+  # Create the Tar Archive on the Target Instance
+  provisioner "shell" {
+    inline = [
+      "cd /home/runner/work/webapp",
+      "tar -czf webapp.tar.gz ."
+    ]
+  }
+
+  # Install web application dependencies
+  provisioner "shell" {
+    inline = [
+      "cd /home/runner/work/webapp",
+      "tar -xzf webapp.tar.gz", # Extract the archive on the target instance
+      "npm install"
+    ]
+  }
+
+  # Clean up the system
   provisioner "shell" {
     inline = [
       "sudo apt clean",
