@@ -70,7 +70,7 @@ jobs:
 
     - name: Compress webapp
       run: |
-        cd webapp
+        cd /home/runner/work/webapp/webapp
         zip -r ../webapp.zip .
     
 
@@ -85,11 +85,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Compress webapp
-        run: |
-          cd webapp
-          zip -r webapp.zip .
-        # working-directory: ${{ github.workspace }}
+      # - name: Compress webapp
+      #   run: |
+      #     cd webapp
+      #     zip -r webapp.zip .
+      #   # working-directory: ${{ github.workspace }}
       
  
       - name: Setup Packer
