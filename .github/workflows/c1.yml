@@ -71,7 +71,7 @@ jobs:
     - name: Compress webapp
       run: |
         cd /home/runner/work/webapp/webapp
-        zip -r ../webapp.zip .
+        zip -r /home/runner/work/webapp/webapp.zip .
     
 
 
