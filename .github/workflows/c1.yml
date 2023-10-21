@@ -81,10 +81,10 @@ jobs:
 
       - name: Compress webapp
         run: |
-          cd .. 
-          zip -r webapp.zip webapp/
           cd webapp
-        working-directory: ${{ github.workspace }}/webapp
+          zip -r ../webapp.zip .
+        working-directory: ${{ github.workspace }}
+      
  
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
