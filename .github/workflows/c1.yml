@@ -72,15 +72,18 @@ jobs:
 
   packer:
 
-    name: Packer CI
+    name: Packer Workflow
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Download webapp repository
-        run: zip -r webapp.zip ./
+      - name: Compress webapp
+        run: |
+          cd .. 
+          zip -r webapp.zip webapp/
+          cd webapp
  
       - name: Setup Packer
         uses: hashicorp/setup-packer@main

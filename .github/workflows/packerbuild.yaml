@@ -1,4 +1,4 @@
-name: CI_Merged
+name: Packer_Merged
 
  
 
@@ -16,7 +16,7 @@ jobs:
 
   build:
 
-    name: Build AMI and Share
+    name: Build AMI
 
     runs-on: ubuntu-latest
 
