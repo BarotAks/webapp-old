@@ -65,15 +65,15 @@ jobs:
       env:
         BASE_URL: http://localhost:4000
    
-    - name: Print Current Directory
+    - name: Print Current Directory (Before TAR)
       run: pwd
-
-    - name: Compress webapp
-      run: |
-        cd /home/runner/work/webapp/webapp
-        tar -czf /home/runner/work/webapp/webapp.tar.gz . 
-    
-    
+      
+    - name: Create TAR Archive
+      run: tar -czf /home/runner/work/webapp/webapp.tar.gz .
+      
+    - name: Print Current Directory (After TAR)
+      run: pwd
+      
 
 
 
