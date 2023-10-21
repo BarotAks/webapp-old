@@ -84,6 +84,7 @@ jobs:
           cd .. 
           zip -r webapp.zip webapp/
           cd webapp
+        working-directory: ${{ github.workspace }}/webapp
  
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
