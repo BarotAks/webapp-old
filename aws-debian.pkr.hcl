@@ -55,6 +55,7 @@ source "amazon-ebs" "webapp" {
 build {
   sources = ["source.amazon-ebs.webapp"]
 
+
   provisioner "shell" {
     inline = [
       "sudo apt update",
@@ -66,7 +67,15 @@ build {
       "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'",
-      "tar -xzf /home/runner/work/webapp/webapp.tar.gz -C /home/runner/work/webapp/", # Unzip and extract the TAR archive in the current directory
+      "echo 'Current Directory: $(pwd)'",                                               # Print current directory
+      "echo 'Contents of the Directory: $(ls)'",                                        # List contents of the directory
+      "echo 'Path to tar file: /home/runner/work/webapp/webapp.tar.gz'",                # Print path to tar file
+      "if [ -f /home/runner/work/webapp/webapp.tar.gz ]; then",                         # Check if the file exists
+      "  tar -xzf /home/runner/work/webapp/webapp.tar.gz -C /home/runner/work/webapp/", # Unzip and extract the TAR archive in the current directory
+      "else",
+      "  echo 'Error: Tar file not found!'", # Print error message if the file doesn't exist
+      "  exit 1",                            # Exit with non-zero status to indicate failure
+      "fi",
       "cd /home/runner/work/webapp",
       "npm install" # Install dependencies
     ]
