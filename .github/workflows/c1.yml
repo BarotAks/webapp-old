@@ -109,6 +109,16 @@ jobs:
       - name: Print Contents of Directory
         run: ls -l /home/runner/work/webapp/
 
+      - name: Check file existence and permissions
+        run: |
+          ls -l /home/runner/work/webapp/
+        shell: bash
+
+      - name: Print the content of the tar command
+        run: |
+          cat aws-debian.pkr.hcl
+        shell: bash
+
 
       - name: Run `packer validate`
         run: |
