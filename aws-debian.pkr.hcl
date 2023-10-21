@@ -91,17 +91,17 @@ build {
 
 
   provisioner "file" {
-    source      = "/home/runner/work/webapp/webapp.zip"
-    destination = "/home/admin/webapp.zip"
+    source      = "/home/runner/work/webapp/webapp.tar.gz"
+    destination = "/home/admin/webapp.tar.gz"
   }
 
 
 
   provisioner "shell" {
     inline = [
-      "sudo apt-get install unzip", # Making sure unzip is installed
+      "sudo apt-get install tar gzip", # Making sure tar and gzip are installed
       "cd /home/admin",
-      "unzip webapp.zip", # Unzip the webapp.zip
+      "tar -xzf webapp.tar.gz",         # Unzip and extract the TAR archive
       "npm install"       # Install dependencies
     ]
   }

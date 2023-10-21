@@ -71,7 +71,7 @@ jobs:
     - name: Compress webapp
       run: |
         cd /home/runner/work/webapp/webapp
-        zip -r /home/runner/work/webapp/webapp.zip . || echo "Failed to zip webapp directory"
+        tar -czf /home/runner/work/webapp/webapp.tar.gz . 
     
     
 
