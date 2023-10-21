@@ -51,7 +51,7 @@ jobs:
         echo "BASE_URL=http://localhost:4000" >> .env
         cat .env
 
-    - name: configuremysql
+    - name: Configure MySQL
       run: |
         sudo apt-get update
         sudo apt-get install -y curl
@@ -66,11 +66,10 @@ jobs:
       env:
         BASE_URL: http://localhost:4000
       
-    # - name: Compress webapp
-    #   run: |
-    #     cd .. 
-    #     zip -r webapp.zip webapp/
-    #     cd webapp
+    - name: Compress webapp
+      run: |
+        cd webapp
+        zip -r ../webapp.zip .
 
 
 
