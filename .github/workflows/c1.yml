@@ -64,11 +64,15 @@ jobs:
       run: npm run test:unit
       env:
         BASE_URL: http://localhost:4000
-      
+   
+    - name: Print Current Directory
+      run: pwd
+
     - name: Compress webapp
       run: |
         cd webapp
         zip -r ../webapp.zip .
+    
 
 
 
