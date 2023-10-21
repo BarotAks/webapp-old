@@ -111,7 +111,7 @@ jobs:
       #     packer build aws-debian.pkr.hcl
 
       - name: Print Contents of Directory
-        run: ls -l /home/runner/work/webapp/webapp/
+        run: ls -l /home/runner/work/webapp/
 
 
       - name: Run `packer validate`
