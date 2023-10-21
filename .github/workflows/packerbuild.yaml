@@ -65,7 +65,7 @@ jobs:
 
         run: |
 
-          packer build -var 'webapp_archive=webapp.tar.gz' aws-debian.pkr.hcl
+          packer build aws-debian.pkr.hcl
 
  
 
