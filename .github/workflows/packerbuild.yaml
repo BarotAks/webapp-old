@@ -1,91 +1,51 @@
 name: Packer_Merged
 
- 
-
 on:
-
   push:
-
     branches:
-
       - main
 
- 
-
 jobs:
-
   build:
-
     name: Build AMI
-
     runs-on: ubuntu-latest
 
- 
-
     steps:
-
       - name: Checkout code
-
         uses: actions/checkout@v2
 
-
       - name: Set up AWS Credentials
-
         run: |
-
-              aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-
-              aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-              aws configure set default.region us-east-1 
-
-              aws configure set default.output json
-
-              aws configure set profile.dev.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-
-              aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          aws configure set default.output json
+          aws configure set profile.dev.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
         with:
           version: '1.9.4'
-        
-      - name: Create TAR Archive
-        run: tar -czf /home/runner/work/webapp/webapp.tar.gz .    
 
+      - name: Create ZIP Archive
+        run: zip -r webapp.zip ./
 
       - name: Initialize Packer
-        run: packer init aws-debian.pkr.hcl
-
+        run: packer init -upgrade aws-debian.pkr.hcl
 
       - name: Build AMI with Packer
-
-        run: |
-
-          packer build aws-debian.pkr.hcl
-
- 
+        run: packer build aws-debian.pkr.hcl
 
       - name: Capture AMI ID from Packer Output
-
         id: capture-ami-id
-
         run: |
-
           ami_id=$(cat packer-build-output.txt | grep 'artifact,0,id' | cut -d' ' -f2)
-
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
-
         working-directory: .
-
-        continue-on-error: true  
-
- 
+        continue-on-error: true
 
       - name: Share AMI with DEMO Account
-
         run: |
-
-          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
-
-          # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID
+          aws ec2 modify-image-attribute --image-id ${{ env.AMI_ID }} --launch-permission "{\"Add\":[{\"UserId\":\"<711372696784>\"}]}"
+        # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID

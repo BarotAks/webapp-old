@@ -43,10 +43,8 @@ source "amazon-ebs" "webapp" {
   region        = var.region
   source_ami    = "ami-06db4d78cb1d3bbf9"
   ssh_username  = var.ssh_username
-  ami_users     = ["547336217625", "711372696784"] # Replace with the DEV,DEMO AWS Account ID
+  ami_users     = ["547336217625", "711372696784"] # Replace with the DEV, DEMO AWS Account ID
 }
-
-# ... (previous code remains unchanged)
 
 build {
   sources = ["source.amazon-ebs.webapp"]
@@ -54,9 +52,10 @@ build {
   # Update system and install packages
   provisioner "shell" {
     inline = [
+      "export DEBIAN_FRONTEND=noninteractive",
       "sudo apt update",
       "sudo apt -y upgrade",
-      "sudo apt -y install nodejs npm mariadb-server mariadb-client"
+      "sudo apt -y install nodejs npm mariadb-server mariadb-client zip unzip"
     ]
   }
 
@@ -70,22 +69,31 @@ build {
     ]
   }
 
-  # Create the Tar Archive on the Target Instance
   provisioner "shell" {
     inline = [
-      "cd /home/runner/work/webapp",
-      "tar -czf webapp.tar.gz ."
+      "sudo apt-get install zip", # Making sure zip is installed
+      // "cd /home//webapp/repo", 
+      "zip -r webapp.zip ./" # Create a zip file of all files in the repository
     ]
   }
 
-  # Install web application dependencies
+
+
+
+  provisioner "file" {
+    source      = "./" # Source file is now the zip file in the current directory
+    destination = "/home/admin/webapp/webapp.zip"
+  }
+
   provisioner "shell" {
     inline = [
-      "cd /home/runner/work/webapp",
-      "tar -xzf webapp.tar.gz", # Extract the archive on the target instance
-      "npm install"
+      "sudo apt-get install unzip", # Making sure unzip is installed
+      "cd /home/admin/webapp",
+      "unzip webapp.zip", # Unzip the webapp.zip
+      "npm install"       # Install dependencies
     ]
   }
+
 
   # Clean up the system
   provisioner "shell" {
