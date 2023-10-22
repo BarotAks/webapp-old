@@ -36,7 +36,7 @@ jobs:
           packer fmt -check aws-debian.pkr.hcl
 
       - name: Print Contents of Directory
-        run: ls -l ${{ github.workspace }}
+        run: ls -l
 
       - name: Check file existence and permissions
         run: |
