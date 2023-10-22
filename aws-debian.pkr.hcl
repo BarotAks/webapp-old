@@ -1,6 +1,6 @@
 variable "aws_profile" {
   type    = string
-  default = "dev"
+  default = "dev2"
 }
 
 variable "region" {
@@ -59,41 +59,16 @@ build {
     ]
   }
 
-  # Set up MySQL database
   provisioner "shell" {
     inline = [
-      "sudo mysql -u root -proot -e 'CREATE DATABASE webapp;'",
-      "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
-      "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
-      "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'"
+      "zip -r webapp.zip .",  # Create a zip file of all files in the repository
+      "chmod 755 webapp.zip", # Ensure correct permissions for the ZIP file
+      "ls -l webapp.zip",     # List details of the created ZIP file
+      "unzip -o webapp.zip",  # Unzip the webapp.zip
+      "ls -l",                # List files in the installation directory after unzip
+      "npm install"           # Install dependencies
     ]
   }
-
-  provisioner "shell" {
-    inline = [
-      "sudo apt-get install zip", # Making sure zip is installed
-      // "cd /home//webapp/repo", 
-      "zip -r webapp.zip ." # Create a zip file of all files in the repository
-    ]
-  }
-
-
-
-
-  provisioner "file" {
-    source      = "./" # Source file is now the zip file in the current directory
-    destination = "/home/admin/webapp/webapp.zip"
-  }
-
-  provisioner "shell" {
-    inline = [
-      "sudo apt-get install unzip", # Making sure unzip is installed
-      "cd /home/admin/webapp",
-      "unzip webapp.zip", # Unzip the webapp.zip
-      "npm install"       # Install dependencies
-    ]
-  }
-
 
   # Clean up the system
   provisioner "shell" {

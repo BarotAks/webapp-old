@@ -20,13 +20,13 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region us-east-1
           aws configure set default.output json
-          aws configure set profile.dev.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set profile.dev2.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set profile.dev2.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
         with:
-          version: '1.9.4'
+          version: '1.8.6'
 
       - name: Create ZIP Archive
         run: zip -r webapp.zip .
