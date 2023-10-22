@@ -73,7 +73,7 @@ build {
     inline = [
       "sudo apt-get install zip", # Making sure zip is installed
       // "cd /home//webapp/repo", 
-      "zip -r webapp.zip ./" # Create a zip file of all files in the repository
+      "zip -r webapp.zip ." # Create a zip file of all files in the repository
     ]
   }
 

@@ -38,15 +38,15 @@ jobs:
       - name: Print Contents of Directory
         run: ls -l
 
-      - name: Check file existence and permissions
-        run: |
-          ls -l /home/admin/webapp/
-        shell: bash
+      # - name: Check file existence and permissions
+      #   run: |
+      #     ls -l /home/admin/webapp/
+      #   shell: bash
 
-      - name: Print the content of the zip file
-        run: |
-          unzip -l /home/admin/webapp/webapp.zip
-        shell: bash
+      # - name: Print the content of the zip file
+      #   run: |
+      #     unzip -l /home/admin/webapp/webapp.zip
+      #   shell: bash
 
       - name: Run 'packer validate'
         run: |
