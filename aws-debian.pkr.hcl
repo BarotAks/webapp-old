@@ -1,6 +1,6 @@
 variable "aws_profile" {
   type    = string
-  default = "dev2"
+  default = "dev"
 }
 
 variable "region" {
@@ -55,26 +55,42 @@ build {
       "export DEBIAN_FRONTEND=noninteractive",
       "sudo apt update",
       "sudo apt -y upgrade",
-      "sudo apt -y install nodejs npm mariadb-server mariadb-client zip unzip"
+      "sudo apt -y install nodejs npm mariadb-server mariadb-client zip unzip",
+      "sudo systemctl start mariadb",
+      "sudo systemctl enable mariadb",
+      "sudo mysql -u root -proot -e 'CREATE DATABASE webapp;'",
+      "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
+      "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
+      "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'"
+
+
+    ]
+  }
+
+  provisioner "file" {
+    source      = "./"
+    destination = "/home/admin/webapp.zip"
+  }
+
+  provisioner "shell" {
+    inline = [
+      "ls -l /home/admin",            # Check if the directory exists
+      "ls -l /home/admin/webapp.zip", # Check if the file is copied successfully
+      "cd /home/admin",
+      "unzip webapp.zip",
+      "ls -l /home/admin", # List the contents after unzipping
+      "npm install",
+      "sudo apt-get install -y unzip", # Added -y flag for non-interactive installation
+      "sudo rm -rf /var/cache/apt/archives",
     ]
   }
 
   provisioner "shell" {
     inline = [
-      "zip -r webapp.zip .",  # Create a zip file of all files in the repository
-      "chmod 755 webapp.zip", # Ensure correct permissions for the ZIP file
-      "ls -l webapp.zip",     # List details of the created ZIP file
-      "unzip -o webapp.zip",  # Unzip the webapp.zip
-      "ls -l",                # List files in the installation directory after unzip
-      "npm install"           # Install dependencies
-    ]
-  }
-
-  # Clean up the system
-  provisioner "shell" {
-    inline = [
+      "ls -l /home/admin", # List contents before cleaning
       "sudo apt clean",
-      "sudo rm -rf /var/lib/apt/lists/*"
+      "sudo rm -rf /var/lib/apt/lists/*",
+      "ls -l /home/admin", # List contents after cleaning
     ]
   }
 }
