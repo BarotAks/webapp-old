@@ -40,7 +40,7 @@ jobs:
 
       - name: Check file existence and permissions
         run: |
-          ls -l /home/admin/webapp/webapp.zip
+          ls -l /home/admin/webapp/
         shell: bash
 
       - name: Print the content of the zip file
