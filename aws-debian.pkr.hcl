@@ -23,6 +23,7 @@ variable "ssh_username" {
   default = "admin"
 }
 
+
 variable "github_workspace" {
   type    = string
   default = ""
@@ -77,9 +78,9 @@ build {
 
   provisioner "shell" {
     inline = [
-      "sudo mkdir -p /home/admin/webapp",                           # Ensure the destination directory exists
+      "mkdir -p /home/admin/webapp",                                # Ensure the destination directory exists
       "unzip /home/admin/webapp/webapp.zip -d /home/admin/webapp/", # Unzip the file inside the destination directory
-      "sudo chown -R admin:admin /home/admin/webapp",               # Change ownership to the admin user
+      "chown -R admin:admin /home/admin/webapp",                    # Change ownership to the admin user
       "cd /home/admin/webapp",
       "npm install",
       "npm run build",

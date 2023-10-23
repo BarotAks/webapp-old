@@ -39,7 +39,7 @@ jobs:
         run: ls -l
       
       - name: List contents of webapp.zip
-        run: unzip -l $GITHUB_WORKSPACE/webapp.zip
+        run: unzip -l ./webapp.zip
       
 
       - name: Initialize Packer
