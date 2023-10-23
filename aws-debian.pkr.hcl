@@ -78,7 +78,6 @@ build {
 
   provisioner "shell" {
     inline = [
-      "mkdir -p /home/admin/webapp",                                # Ensure the destination directory exists
       "unzip /home/admin/webapp/webapp.zip -d /home/admin/webapp/", # Unzip the file inside the destination directory
       "chown -R admin:admin /home/admin/webapp",                    # Change ownership to the admin user
       "cd /home/admin/webapp",
