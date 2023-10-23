@@ -54,8 +54,10 @@ jobs:
         run: |
           ami_id=$(cat packer-build-output.txt | grep 'artifact,0,id' | cut -d' ' -f2)
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
+        working-directory: .
+        continue-on-error: true  
 
       - name: Share AMI with DEMO Account
         run: |
-          aws ec2 modify-image-attribute --image-id ${{ env.AMI_ID }} --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
-        continue-on-error: false # Fail the workflow if sharing AMI fails
+          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
+      # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID
