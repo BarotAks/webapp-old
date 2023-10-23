@@ -78,9 +78,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "unzip /home/admin/webapp/webapp.zip -d /home/admin/webapp/", # Unzip the file inside the destination directory
-      "chown -R admin:admin /home/admin/webapp",                    # Change ownership to the admin user
       "cd /home/admin/webapp",
+      "unzip webapp.zip",
       "npm install",
       "npm run build",
       "sudo rm -rf /var/cache/apt/archives",
