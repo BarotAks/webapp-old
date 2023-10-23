@@ -52,10 +52,9 @@ jobs:
       - name: Capture AMI ID from Packer Output
         id: capture-ami-id
         run: |
-          ami_id=$(cat packer-build-output.txt | grep 'artifact,0,id' | cut -d' ' -f2)
+          ami_id=$(packer build -machine-readable aws-debian.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {print $6}')
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
-        working-directory: .
-        continue-on-error: true  
+        continue-on-error: true       
 
       - name: Share AMI with DEMO Account
         run: |
