@@ -52,7 +52,7 @@ jobs:
       - name: Capture AMI ID from Packer Output
         id: capture-ami-id
         run: |
-          ami_id=$(grep -o 'ami-[a-zA-Z0-9]*' packer-build-output.txt | tail -n1)
+          ami_id=$(packer build aws-debian.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {split($6, a, ":"); print a[2]}')
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
         continue-on-error: true
       
@@ -62,3 +62,4 @@ jobs:
         env:
           AMI_ID: ${{ env.AMI_ID }}
       # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID
+
