@@ -48,15 +48,17 @@ jobs:
       - name: Build AMI with Packer
         run: packer build aws-debian.pkr.hcl
         continue-on-error: false # Fail the workflow if Packer build fails
-
+      
       - name: Capture AMI ID from Packer Output
         id: capture-ami-id
         run: |
-          ami_id=$(cat packer-build-output.txt | awk -F' ' '/^us-east-1:/ {print $2}')
+          ami_id=$(grep -o 'ami-[a-zA-Z0-9]*' packer-build-output.txt | tail -n1)
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
-        continue-on-error: true              
-
+        continue-on-error: true
+      
       - name: Share AMI with DEMO Account
         run: |
           aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
+        env:
+          AMI_ID: ${{ env.AMI_ID }}
       # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID
