@@ -23,11 +23,6 @@ variable "ssh_username" {
   default = "admin"
 }
 
-variable "github_workspace" {
-  type    = string
-  default = ""
-}
-
 
 variable "github_workspace" {
   type    = string
