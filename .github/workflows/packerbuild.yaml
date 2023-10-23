@@ -31,15 +31,8 @@ jobs:
       - name: Create ZIP Archive
         run: zip -r webapp.zip .
 
-      - name: Check file existence and permissions
-        run: |
-          ls -l /home/admin/webapp/
-        shell: bash
-
-      - name: Print the content of the zip file
-        run: |
-          unzip -l /home/admin/webapp/webapp.zip
-        shell: bash
+      - name: Create Destination Directory
+        run: mkdir -p /home/admin/webapp/
 
       - name: Initialize Packer
         run: packer init -upgrade aws-debian.pkr.hcl
