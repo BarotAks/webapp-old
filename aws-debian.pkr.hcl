@@ -49,48 +49,32 @@ source "amazon-ebs" "webapp" {
 build {
   sources = ["source.amazon-ebs.webapp"]
 
-  # Update system and install packages
   provisioner "shell" {
     inline = [
       "export DEBIAN_FRONTEND=noninteractive",
-      "sudo apt update",
-      "sudo apt -y upgrade",
-      "sudo apt -y install nodejs npm mariadb-server mariadb-client zip unzip",
+      "sudo apt-get update",
+      "sudo apt-get -y upgrade",
+      "sudo apt-get -y install nodejs npm mariadb-server mariadb-client unzip",
       "sudo systemctl start mariadb",
       "sudo systemctl enable mariadb",
       "sudo mysql -u root -proot -e 'CREATE DATABASE webapp;'",
       "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'"
-
-
     ]
-  }
-
-  provisioner "file" {
-    source      = "./"
-    destination = "/home/admin/webapp.zip"
   }
 
   provisioner "shell" {
     inline = [
-      "ls -l /home/admin",            # Check if the directory exists
-      "ls -l /home/admin/webapp.zip", # Check if the file is copied successfully
-      "cd /home/admin",
-      "unzip webapp.zip",
-      "ls -l /home/admin", # List the contents after unzipping
+      "sudo mkdir /home/admin/webapp",
+      "sudo cp -r ./webapp/* /home/admin/webapp",
+      "sudo chown -R admin:admin /home/admin/webapp",
+      "cd /home/admin/webapp",
       "npm install",
-      "sudo apt-get install -y unzip", # Added -y flag for non-interactive installation
+      "npm run build",
       "sudo rm -rf /var/cache/apt/archives",
-    ]
-  }
-
-  provisioner "shell" {
-    inline = [
-      "ls -l /home/admin", # List contents before cleaning
-      "sudo apt clean",
-      "sudo rm -rf /var/lib/apt/lists/*",
-      "ls -l /home/admin", # List contents after cleaning
+      "sudo apt-get clean",
+      "sudo rm -rf /var/lib/apt/lists/*"
     ]
   }
 }
