@@ -37,6 +37,10 @@ jobs:
           
       - name: Print Contents of Directory
         run: ls -l
+      
+      - name: List contents of webapp.zip
+        run: unzip -l $GITHUB_WORKSPACE/webapp.zip
+      
 
       - name: Initialize Packer
         run: packer init -upgrade aws-debian.pkr.hcl
