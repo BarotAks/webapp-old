@@ -83,7 +83,6 @@ build {
       "cd /home/admin/webapp",                            # Change to the destination directory
       "unzip webapp.zip",                                 # Unzip the file inside the destination directory
       "npm install",
-      "npm run build",
       "sudo rm -rf /var/cache/apt/archives",
       "sudo apt-get clean",
       "sudo rm -rf /var/lib/apt/lists/*"
