@@ -54,8 +54,7 @@ jobs:
         run: |
           ami_id=$(packer build -machine-readable aws-debian.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {print $6}')
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
-        continue-on-error: true
-       
+        continue-on-error: true       
 
       - name: Share AMI with DEMO Account
         run: |
