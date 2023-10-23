@@ -67,7 +67,7 @@ build {
   provisioner "shell" {
     inline = [
       "sudo mkdir /home/admin/webapp",
-      "unzip webapp.zip -d /home/admin/webapp", # Unzip the uploaded ZIP file
+      "unzip /home/runner/work/webapp/webapp/webapp.zip -d /home/admin/webapp", # Specify the full path to the ZIP file
       "sudo chown -R admin:admin /home/admin/webapp",
       "cd /home/admin/webapp",
       "npm install",
