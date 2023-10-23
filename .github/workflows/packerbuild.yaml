@@ -29,7 +29,14 @@ jobs:
           version: '1.8.6'
 
       - name: Create ZIP Archive
-        run: zip -r webapp.zip ./webapp
+        run: zip -r webapp.zip .
+
+      - name: Display ZIP File Location
+        run: |
+          echo "ZIP file location: $GITHUB_WORKSPACE/webapp.zip"
+          
+      - name: Print Contents of Directory
+        run: ls -l
 
       - name: Initialize Packer
         run: packer init -upgrade aws-debian.pkr.hcl
