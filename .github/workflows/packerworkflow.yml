@@ -1,4 +1,4 @@
-name: Packer Workflow
+name: Packer Status Check
 
 on:
   pull_request:
@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  packer:
-    name: Packer Workflow
+  packer-status-check:
+    name: Packer Status Check
     runs-on: ubuntu-latest
     
     steps:
@@ -25,29 +25,26 @@ jobs:
         with:
           version: '1.8.6'
 
-      - name: Create ZIP Archive
-        run: zip -r webapp.zip .
-
       - name: Initialize Packer
         run: packer init .
 
       - name: Run 'packer fmt'
         run: |
-          packer fmt -check aws-debian.pkr.hcl
+          if packer fmt -check aws-debian.pkr.hcl; then
+            echo "Packer template is formatted correctly."
+          else
+            echo "Packer template is not formatted correctly. Please format the template and try again."
+            exit 1
+          fi
 
       - name: Print Contents of Directory
         run: ls -l
 
-      # - name: Check file existence and permissions
-      #   run: |
-      #     ls -l /home/admin/webapp/
-      #   shell: bash
-
-      # - name: Print the content of the zip file
-      #   run: |
-      #     unzip -l /home/admin/webapp/webapp.zip
-      #   shell: bash
-
       - name: Run 'packer validate'
         run: |
-          packer validate aws-debian.pkr.hcl
+          if packer validate aws-debian.pkr.hcl; then
+            echo "Packer template is valid."
+          else
+            echo "Packer template is not valid. Please fix the issues in the template and try again."
+            exit 1
+          fi
