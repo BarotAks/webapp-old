@@ -73,13 +73,15 @@ build {
 
   provisioner "file" {
     source      = "./webapp.zip"
-    destination = "/home/admin/webapp/webapp.zip"
+    destination = "/tmp/webapp.zip" # Upload to a temporary location
   }
 
   provisioner "shell" {
     inline = [
-      "cd /home/admin/webapp",
-      "unzip webapp.zip",
+      "mkdir -p /home/admin/webapp",                      # Create the destination directory if it doesn't exist
+      "mv /tmp/webapp.zip /home/admin/webapp/webapp.zip", # Move the uploaded file to the correct location
+      "cd /home/admin/webapp",                            # Change to the destination directory
+      "unzip webapp.zip",                                 # Unzip the file inside the destination directory
       "npm install",
       "npm run build",
       "sudo rm -rf /var/cache/apt/archives",
