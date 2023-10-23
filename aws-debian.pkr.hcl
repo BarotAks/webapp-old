@@ -23,6 +23,12 @@ variable "ssh_username" {
   default = "admin"
 }
 
+variable "github_workspace" {
+  type    = string
+  default = ""
+}
+
+
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
@@ -41,7 +47,7 @@ source "amazon-ebs" "webapp" {
   ami_name      = "webapp-ami-${local.timestamp}"
   instance_type = var.instance_type
   region        = var.region
-  source_ami    = "ami-06db4d78cb1d3bbf9"
+  source_ami    = "ami-0bde774ae2812b32f"
   ssh_username  = var.ssh_username
   ami_users     = ["547336217625", "711372696784"] # Replace with the DEV, DEMO AWS Account ID
 }
@@ -64,11 +70,16 @@ build {
     ]
   }
 
+  provisioner "file" {
+    source      = "./webapp.zip"
+    destination = "/home/admin/webapp/webapp.zip"
+  }
+
   provisioner "shell" {
     inline = [
-      "sudo mkdir /home/admin/webapp",
-      "unzip $GITHUB_WORKSPACE/webapp.zip -d /home/admin/webapp", # Specify the full path to the ZIP file
-      "sudo chown -R admin:admin /home/admin/webapp",
+      "sudo mkdir -p /home/admin/webapp",                           # Ensure the destination directory exists
+      "unzip /home/admin/webapp/webapp.zip -d /home/admin/webapp/", # Unzip the file inside the destination directory
+      "sudo chown -R admin:admin /home/admin/webapp",               # Change ownership to the admin user
       "cd /home/admin/webapp",
       "npm install",
       "npm run build",

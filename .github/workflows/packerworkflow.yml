@@ -24,10 +24,10 @@ jobs:
         uses: hashicorp/setup-packer@main
         with:
           version: '1.8.6'
-
+          
       - name: Initialize Packer
         run: packer init .
-
+      
       - name: Run 'packer fmt'
         run: |
           if packer fmt -check aws-debian.pkr.hcl; then
@@ -36,7 +36,10 @@ jobs:
             echo "Packer template is not formatted correctly. Please format the template and try again."
             exit 1
           fi
-
+      
+      - name: Create ZIP Archive
+        run: zip -r webapp.zip .
+  
       - name: Print Contents of Directory
         run: ls -l
 
