@@ -50,14 +50,16 @@ jobs:
         continue-on-error: false # Fail the workflow if Packer build fails
         id: packer-build
 
-      - name: Capture AMI ID
-        id: capture-ami-id
+      - name: Capture AMI ID from Packer Output
+        if: steps.packer-build.outcome == 'success'
         run: |
           ami_id=$(packer build -machine-readable aws-debian.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {split($6, a, ":"); print a[2]}')
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
         continue-on-error: true
-
+  
       - name: Share AMI with DEMO Account
+        if: steps.packer-build.outcome == 'success'
         run: |
           aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
+        continue-on-error: false
         # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID
