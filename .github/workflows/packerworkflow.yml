@@ -26,11 +26,11 @@ jobs:
           version: '1.8.6'
 
       - name: Initialize Packer
-        run: packer init -upgrade packer/aws-debian.pkr.hcl
+        run: packer init -upgrade aws-debian.pkr.hcl
 
       - name: Run 'packer fmt'
         run: |
-          if packer fmt -check packer/aws-debian.pkr.hcl; then
+          if packer fmt -check aws-debian.pkr.hcl; then
             echo "Packer template is formatted correctly."
           else
             echo "Packer template is not formatted correctly. Please format the template and try again."
@@ -45,7 +45,7 @@ jobs:
 
       - name: Run 'packer validate'
         run: |
-          if packer validate -var-file="packer/variables.pkr.hcl" packer/aws-debian.pkr.hcl; then
+          if packer validate aws-debian.pkr.hcl; then
             echo "Packer template is valid."
           else
             echo "Packer template is not valid. Please fix the issues in the template and try again."

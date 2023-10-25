@@ -4,7 +4,7 @@ variable "aws_profile" {
   default = "dev"
 }
 
-variable "aws_region" {
+variable "region" {
   type    = string
   default = "us-east-1"
 }
@@ -35,13 +35,10 @@ variable "source_ami" {
   default = "ami-0bde774ae2812b32f"
 }
 
-variable "github_workspace" {
-  type = string
-}
 
 
 locals {
-  timestamp = regex_replace(timestamp(), "[^0-9]", "")
+  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
 
 packer {
@@ -58,7 +55,7 @@ source "amazon-ebs" "webapp" {
   ami_name        = "webapp-ami-${local.timestamp}"
   ami_description = "AMI for webapp"
   instance_type   = var.instance_type
-  region          = var.aws_region
+  region          = var.region
   source_ami      = var.source_ami
   ssh_username    = var.ssh_username
   ami_users       = ["547336217625", "711372696784"] # Replace with the DEV, DEMO AWS Account ID
@@ -73,6 +70,6 @@ build {
   }
 
   provisioner "shell" {
-    script = "./packer/webapp.sh"
+    script = "./webapp.sh"
   }
 }

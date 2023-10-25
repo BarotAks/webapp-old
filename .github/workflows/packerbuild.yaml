@@ -20,6 +20,8 @@ jobs:
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region us-east-1
           aws configure set default.output json
+          aws configure set profile.dev.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Setup Packer
         uses: hashicorp/setup-packer@main
@@ -32,30 +34,32 @@ jobs:
       - name: Display ZIP File Location
         run: |
           echo "ZIP file location: $GITHUB_WORKSPACE/webapp.zip"
+          
+      - name: Print Contents of Directory
+        run: ls -l
       
       - name: List contents of webapp.zip
         run: unzip -l ./webapp.zip
+      
 
       - name: Initialize Packer
-        run: packer init -upgrade packer/aws-debian.pkr.hcl
+        run: packer init -upgrade aws-debian.pkr.hcl
 
       - name: Build AMI with Packer
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        run: packer build -var-file="packer/variables.pkr.hcl" packer/aws-debian.pkr.hcl
+        run: packer build aws-debian.pkr.hcl
         continue-on-error: false # Fail the workflow if Packer build fails
         id: packer-build
 
       - name: Capture AMI ID from Packer Output
-        id: capture-ami-id
+        if: steps.packer-build.outcome == 'success'
         run: |
-          ami_id=$(cat packer/aws-debian.pkr.hcl | grep 'source_ami' | cut -d' ' -f3 | tr -d '"')
+          ami_id=$(packer build -machine-readable aws-debian.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {split($6, a, ":"); print a[2]}')
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
-        working-directory: .
         continue-on-error: true
-
+  
       - name: Share AMI with DEMO Account
+        if: steps.packer-build.outcome == 'success'
         run: |
-          aws ec2 modify-image-attribute --image-id ${{ env.AMI_ID }} --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
+          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
+        continue-on-error: false
         # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID
