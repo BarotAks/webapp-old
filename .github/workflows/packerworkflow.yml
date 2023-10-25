@@ -45,7 +45,7 @@ jobs:
 
       - name: Display ZIP File Location
         run: |
-          echo "ZIP file location: ./webapp.zip"
+          echo "ZIP file location: $GITHUB_WORKSPACE/webapp.zip"
       
       - name: List contents of webapp.zip
         run: unzip -l ./webapp.zip
@@ -53,21 +53,21 @@ jobs:
 
       - name: Run 'packer validate'
         run: |
-          if packer validate packer/aws-debian.pkr.hcl; then
+          if packer validate aws-debian.pkr.hcl; then
             echo "Packer template is valid."
           else
             echo "Packer template is not valid. Please fix the issues in the template and try again."
             exit 1
           fi
 
-      # - name: Set up AWS Credentials
-      #   run: |
-      #       aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #       aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #       aws configure set default.region us-east-1
-      #       aws configure set default.output json
+      - name: Set up AWS Credentials
+        run: |
+            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws configure set default.region us-east-1
+            aws configure set default.output json
     
-      # - name: Build AMI with Packer
-      #   run: packer build packer/aws-debian.pkr.hcl
-      #   continue-on-error: false # Fail the workflow if Packer build fails
-      #   id: packer-build
+      - name: Build AMI with Packer
+        run: packer build packer/aws-debian.pkr.hcl
+        continue-on-error: false # Fail the workflow if Packer build fails
+        id: packer-build
