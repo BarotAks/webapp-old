@@ -9,11 +9,6 @@ variable "region" {
   default = "us-east-1"
 }
 
-variable "source_ami_owner" {
-  type    = string
-  default = "547336217625"
-}
-
 variable "instance_type" {
   type    = string
   default = "t2.micro"
@@ -23,13 +18,6 @@ variable "ssh_username" {
   type    = string
   default = "admin"
 }
-
-
-variable "github_workspace" {
-  type    = string
-  default = ""
-}
-
 
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
@@ -68,31 +56,32 @@ build {
       "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
       "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'"
-
-
     ]
   }
-
-
-
 
   provisioner "file" {
     source      = "webapp.zip"
     destination = "/home/admin/webapp.zip"
   }
 
-
-
   provisioner "shell" {
     inline = [
-      "sudo apt-get install unzip", # Making sure unzip is installed
+      "sudo apt-get install unzip",
       "cd /home/admin",
-      "unzip webapp.zip", # Unzip the webapp.zip
-      "npm install"       # Install dependencies
+      "unzip webapp.zip",
+      "npm install"
     ]
   }
 
-
+  provisioner "shell" {
+    inline = [
+      "echo 'DB_HOST=localhost' >> /home/admin/.env",
+      "echo 'DB_PORT=3306' >> /home/admin/.env",
+      "echo 'DB_USER=root' >> /home/admin/.env",
+      "echo 'DB_PASSWORD=root' >> /home/admin/.env",
+      "echo 'DB_NAME=webapp' >> /home/admin/.env"
+    ]
+  }
 
   provisioner "shell" {
     inline = [
