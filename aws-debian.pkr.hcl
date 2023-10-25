@@ -19,6 +19,11 @@ variable "ssh_username" {
   default = "admin"
 }
 
+variable "github_workspace" {
+  type    = string
+  default = ""
+}
+
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
 }
