@@ -35,9 +35,13 @@ variable "source_ami" {
   default = "ami-0bde774ae2812b32f"
 }
 
+variable "github_workspace" {
+  type = string
+}
+
 
 locals {
-  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+  timestamp = regex_replace(timestamp(), "[^0-9]", "")
 }
 
 packer {
