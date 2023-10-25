@@ -26,17 +26,17 @@ jobs:
           version: '1.8.6'
 
       - name: Initialize Packer
-        run: packer init -upgrade -var-file=variables.pkr.hcl ./packer/aws-debian.pkr.hcl
+        run: packer init -upgrade -var-file="packer/variables.pkr.hcl" /packer/aws-debian.pkr.hcl
 
       - name: Run 'packer fmt'
         run: |
-          if packer fmt -check -var-file=variables.pkr.hcl ./packer/aws-debian.pkr.hcl; then
+          if packer fmt -check -var-file="packer/variables.pkr.hcl" packer/aws-debian.pkr.hcl; then
             echo "Packer template is formatted correctly."
           else
             echo "Packer template is not formatted correctly. Please format the template and try again."
             exit 1
           fi
-
+       
       - name: Create ZIP Archive
         run: zip -r webapp.zip .
 
@@ -45,7 +45,7 @@ jobs:
 
       - name: Run 'packer validate'
         run: |
-          if packer validate -var-file=variables.pkr.hcl ./packer/aws-debian.pkr.hcl; then
+          if packer validate -var-file="packer/variables.pkr.hcl" packer/aws-debian.pkr.hcl; then
             echo "Packer template is valid."
           else
             echo "Packer template is not valid. Please fix the issues in the template and try again."

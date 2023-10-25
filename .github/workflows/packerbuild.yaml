@@ -40,7 +40,7 @@ jobs:
         run: packer init -upgrade packer
 
       - name: Build AMI with Packer
-        run: packer build -var-file=variables.pkr.hcl aws-debian.pkr.hcl
+        run: packer build -var-file="packer/variables.pkr.hcl" packer/aws-debian.pkr.hcl
         continue-on-error: false # Fail the workflow if Packer build fails
         id: packer-build
 
