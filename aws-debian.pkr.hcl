@@ -36,6 +36,7 @@ variable "source_ami" {
 }
 
 
+
 locals {
   timestamp = regex_replace(timestamp(), "[^0-9]", "")
 }
