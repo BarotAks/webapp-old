@@ -68,6 +68,6 @@ jobs:
             aws configure set default.output json
     
       - name: Build AMI with Packer
-        run: packer build packer/aws-debian.pkr.hcl
+        run: packer build aws-debian.pkr.hcl
         continue-on-error: false # Fail the workflow if Packer build fails
         id: packer-build
