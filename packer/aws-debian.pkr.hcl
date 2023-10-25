@@ -1,3 +1,4 @@
+# aws-debian.pkr.hcl
 variable "aws_profile" {
   type = string
 }
@@ -26,9 +27,8 @@ variable "github_workspace" {
   type = string
 }
 
-
 locals {
-  timestamp = regex_replace(timestamp(), "[- TZ:]", "")
+  timestamp = regex_replace(timestamp(), "[^0-9]", "")
 }
 
 packer {
@@ -42,13 +42,13 @@ packer {
 
 source "amazon-ebs" "webapp" {
   profile         = "${var.aws_profile}"
-  ami_name        = "webapp-ami-${formatdate("YYYY-MM-DD-hh-mm-ss", timestamp())}"
+  ami_name        = "webapp-ami-${local.timestamp}"
   ami_description = "AMI for webapp"
   instance_type   = "${var.instance_type}"
   region          = "${var.aws_region}"
   source_ami      = "${var.source_ami}"
   ssh_username    = "${var.ssh_username}"
-  ami_users       = ["547336217625", "711372696784"] # Replace with the DEV, DEMO AWS Account ID
+  ami_users       = ["${var.source_ami_owner}"]
 }
 
 build {
@@ -56,11 +56,10 @@ build {
 
   provisioner "file" {
     source      = "webapp.zip"
-    destination = "/tmp/webapp.zip" # Upload to a temporary location
+    destination = "/tmp/webapp.zip"
   }
 
   provisioner "shell" {
     script = "./packer/webapp.sh"
   }
-
 }
