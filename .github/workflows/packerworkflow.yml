@@ -26,11 +26,11 @@ jobs:
           version: '1.8.6'
 
       - name: Initialize Packer
-        run: packer init -upgrade packer/aws-debian.pkr.hcl
+        run: packer init -upgrade aws-debian.pkr.hcl
 
       - name: Run 'packer fmt'
         run: |
-          if packer fmt -check packer/aws-debian.pkr.hcl; then
+          if packer fmt -check aws-debian.pkr.hcl; then
             echo "Packer template is formatted correctly."
           else
             echo "Packer template is not formatted correctly. Please format the template and try again."
@@ -42,7 +42,6 @@ jobs:
 
       - name: Print Contents of Directory
         run: ls -l
-
 
       - name: Display ZIP File Location
         run: |
@@ -61,14 +60,14 @@ jobs:
             exit 1
           fi
 
-      - name: Set up AWS Credentials
-        run: |
-            aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws configure set default.region us-east-1
-            aws configure set default.output json
+      # - name: Set up AWS Credentials
+      #   run: |
+      #       aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #       aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #       aws configure set default.region us-east-1
+      #       aws configure set default.output json
     
-      - name: Build AMI with Packer
-        run: packer build packer/aws-debian.pkr.hcl
-        continue-on-error: false # Fail the workflow if Packer build fails
-        id: packer-build
+      # - name: Build AMI with Packer
+      #   run: packer build packer/aws-debian.pkr.hcl
+      #   continue-on-error: false # Fail the workflow if Packer build fails
+      #   id: packer-build

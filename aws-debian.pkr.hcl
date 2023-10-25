@@ -69,6 +69,6 @@ build {
   }
 
   provisioner "shell" {
-    script = "./packer/webapp.sh"
+    script = "./webapp.sh"
   }
 }
