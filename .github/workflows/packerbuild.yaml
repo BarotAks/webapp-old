@@ -51,15 +51,14 @@ jobs:
         id: packer-build
 
       - name: Capture AMI ID from Packer Output
-        if: steps.packer-build.outcome == 'success'
+        id: capture-ami-id
         run: |
-          ami_id=$(packer build -machine-readable aws-debian.pkr.hcl | awk -F, '$0 ~/artifact,0,id/ {split($6, a, ":"); print a[2]}')
+          ami_id=$(cat packer-build-output.txt | grep 'artifact,0,id' | cut -d' ' -f2)
           echo "AMI_ID=${ami_id}" >> $GITHUB_ENV
+        working-directory: .
         continue-on-error: true
-  
+
       - name: Share AMI with DEMO Account
-        if: steps.packer-build.outcome == 'success'
         run: |
-          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
-        continue-on-error: false
+          aws ec2 modify-image-attribute --image-id ${{ env.AMI_ID }} --launch-permission "{\"Add\":[{\"UserId\":\"<711372696784>\"}]}"
         # Replace <DEMO_ACCOUNT_ID> with the DEMO AWS account ID
