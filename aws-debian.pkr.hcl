@@ -30,12 +30,6 @@ variable "github_workspace" {
   default = ""
 }
 
-variable "source_ami" {
-  type    = string
-  default = "ami-0bde774ae2812b32f"
-}
-
-
 
 locals {
   timestamp = regex_replace(timestamp(), "[- TZ:]", "")
@@ -51,25 +45,59 @@ packer {
 }
 
 source "amazon-ebs" "webapp" {
-  profile         = var.aws_profile
-  ami_name        = "webapp-ami-${local.timestamp}"
-  ami_description = "AMI for webapp"
-  instance_type   = var.instance_type
-  region          = var.region
-  source_ami      = var.source_ami
-  ssh_username    = var.ssh_username
-  ami_users       = ["547336217625", "711372696784"] # Replace with the DEV, DEMO AWS Account ID
+  profile       = var.aws_profile
+  ami_name      = "webapp-ami-${local.timestamp}"
+  instance_type = var.instance_type
+  region        = var.region
+  source_ami    = "ami-0bde774ae2812b32f"
+  ssh_username  = var.ssh_username
+  ami_users     = ["547336217625", "711372696784"] # Replace with the DEV, DEMO AWS Account ID
 }
 
 build {
   sources = ["source.amazon-ebs.webapp"]
 
-  provisioner "file" {
-    source      = "webapp.zip"
-    destination = "/tmp/webapp.zip"
+  provisioner "shell" {
+    inline = [
+      "sudo apt update",
+      "sudo apt -y upgrade",
+      "sudo apt -y install nodejs npm mariadb-server mariadb-client",
+      "sudo systemctl start mariadb",
+      "sudo systemctl enable mariadb",
+      "sudo mysql -u root -proot -e 'CREATE DATABASE webapp;'",
+      "sudo mysql -u root -e \"ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';\"",
+      "sudo mysql -u root -proot -e \"GRANT ALL PRIVILEGES ON webapp.* TO 'root'@'localhost' IDENTIFIED BY 'root';\"",
+      "sudo mysql -u root -proot -e 'FLUSH PRIVILEGES;'"
+
+
+    ]
   }
 
+
+
+
+  provisioner "file" {
+    source      = "webapp.zip"
+    destination = "/home/admin/webapp.zip"
+  }
+
+
+
   provisioner "shell" {
-    script = "./webapp.sh"
+    inline = [
+      "sudo apt-get install unzip", # Making sure unzip is installed
+      "cd /home/admin",
+      "unzip webapp.zip", # Unzip the webapp.zip
+      "npm install"       # Install dependencies
+    ]
+  }
+
+
+
+  provisioner "shell" {
+    inline = [
+      "sudo apt clean",
+      "sudo rm -rf /var/lib/apt/lists/*"
+    ]
   }
 }
