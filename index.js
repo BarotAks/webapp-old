@@ -1,105 +1,17 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const Sequelize = require('sequelize');
 const bcrypt = require('bcrypt');
 const fs = require('fs');
 const path = require('path');
 const papa = require('papaparse');
+const sequelize = require('./config/database');
+const Account = require('./models/account');
+const Assignment = require('./models/assignment');
 
 const app = express();
 app.use(bodyParser.json());
 
-const sequelize = new Sequelize('webapp', 'root', 'Pass1234', {
-  host: 'localhost',
-  dialect: 'mysql',
-});
-
 const saltRounds = 10;
-
-const Account = sequelize.define('account', {
-  id: {
-    type: Sequelize.UUID,
-    defaultValue: Sequelize.UUIDV4,
-    primaryKey: true,
-    allowNull: false,
-  },
-  first_name: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  last_name: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  password: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  email: {
-    type: Sequelize.STRING,
-    allowNull: false,
-    validate: {
-      isEmail: true,
-    },
-  },
-  account_created: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW,
-    allowNull: false,
-  },
-  account_updated: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW,
-    allowNull: false,
-  },
-});
-
-const Assignment = sequelize.define('assignment', {
-  id: {
-    type: Sequelize.UUID,
-    primaryKey: true,
-    defaultValue: Sequelize.UUIDV4,
-    allowNull: false,
-  },
-  name: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  points: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1,
-      max: 10,
-    },
-  },
-  num_of_attempts: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    validate: {
-      min: 1,
-      max: 10,
-    },
-  },
-  deadline: {
-    type: Sequelize.DATE,
-    allowNull: false,
-  },
-  assignment_created: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW,
-    allowNull: false,
-  },
-  assignment_updated: {
-    type: Sequelize.DATE,
-    defaultValue: Sequelize.NOW,
-    allowNull: false,
-  },
-  creatorId: {
-    type: Sequelize.UUID, // Assuming creatorId is a foreign key referencing Account table
-    allowNull: false,
-  },
-});
 
 // Load accounts from CSV after database synchronization
 

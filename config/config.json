@@ -1,23 +1,23 @@
-{
-  "development": {
-    "username": "root",
-    "password": "Pass1234",
-    "database": "webapp",
-    "host": "localhost",
-    "dialect": "mysql"
-  },
-  "test": {
-    "username": "root",
-    "password": "Pass1234",
-    "database": "webapp",
-    "host": "localhost",
-    "dialect": "mysql"
-  },
-  "production": {
-    "username": "root",
-    "password": "Pass1234",
-    "database": "webapp",
-    "host": "localhost",
-    "dialect": "mysql"
-  }
-}
+// {
+//   "development": {
+//     "username": "root",
+//     "password": "Pass1234",
+//     "database": "webapp",
+//     "host": "localhost",
+//     "dialect": "mysql"
+//   },
+//   "test": {
+//     "username": "root",
+//     "password": "Pass1234",
+//     "database": "webapp",
+//     "host": "localhost",
+//     "dialect": "mysql"
+//   },
+//   "production": {
+//     "username": "root",
+//     "password": "Pass1234",
+//     "database": "webapp",
+//     "host": "localhost",
+//     "dialect": "mysql"
+//   }
+// }
