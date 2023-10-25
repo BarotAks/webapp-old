@@ -37,7 +37,7 @@ jobs:
         run: unzip -l ./webapp.zip
 
       - name: Initialize Packer
-        run: packer init -upgrade packer
+        run: packer init -upgrade packer/aws-debian.pkr.hcl
 
       - name: Build AMI with Packer
         run: packer build -var-file="packer/variables.pkr.hcl" packer/aws-debian.pkr.hcl
