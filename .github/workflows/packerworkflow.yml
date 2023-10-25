@@ -30,7 +30,7 @@ jobs:
 
       - name: Run 'packer fmt'
         run: |
-          if packer fmt -check -var-file="packer/variables.pkr.hcl" packer/aws-debian.pkr.hcl; then
+          if packer fmt -check packer/aws-debian.pkr.hcl; then
             echo "Packer template is formatted correctly."
           else
             echo "Packer template is not formatted correctly. Please format the template and try again."
