@@ -5,7 +5,7 @@ const app = require('../../index'); // Update the path to your Express app
 
 chai.use(chaiHttp);
 
-const BASE_URL = 'http://localhost:4000';
+const BASE_URL = 'http://localhost:3000';
 
 describe('Health Check', () => {
   it('should return status 200 and "OK" when accessing /healthz', async () => {

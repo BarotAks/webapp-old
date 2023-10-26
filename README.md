@@ -46,7 +46,7 @@ test
     node index.js
     ```
 
-6. **The server will start running on port 4000. You can access the API at `http://localhost:4000`.**
+6. **The server will start running on port 3000. You can access the API at `http://localhost:3000`.**
 
 ## API Endpoints
 

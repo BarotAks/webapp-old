@@ -65,19 +65,24 @@ async function loadAccountsFromCSV() {
 }
 
 
+const dotenv = require('dotenv');
+dotenv.config(); // Load environment variables from .env file
+
 async function initializeDatabase() {
   try {
     await sequelize.sync();
     console.log('Database synchronized.');
     await loadAccountsFromCSV();
     
-    app.listen(4000, () => {
-      console.log('Server is running on port 4000');
+    const port = process.env.PORT || 3000; // Default to port 3000 if PORT is not specified in .env
+    app.listen(port, () => {
+      console.log(`Server is running on port ${port}`);
     });
   } catch (error) {
     console.error('Error initializing database:', error);
   }
 }
+
 
 initializeDatabase(); // Call the function to initialize the database
 
