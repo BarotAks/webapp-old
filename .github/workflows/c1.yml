@@ -39,8 +39,8 @@ jobs:
           echo "BASE_URL=http://localhost:3000" >> .env
           cat .env
       
-      - name: Save .env in the repository
-        run: mv .env $GITHUB_WORKSPACE/.env
+      # - name: Save .env in the repository
+      #   run: mv .env $GITHUB_WORKSPACE/.env
         
 
       - name: Configure MySQL
