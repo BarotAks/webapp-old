@@ -25,9 +25,21 @@ jobs:
         with:
           version: '1.8.6'
 
+      - name: Create ZIP Archive
+        run: zip -r webapp.zip . -x ".git/*" ".gitignore" ".github/*"
+  
+      
+      - name: Install Packer
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
+          sudo apt-add-repository "deb [arch=$(dpkg --print-architecture)] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+          sudo apt-get update && sudo apt-get install packer
+    
+  
       - name: Initialize Packer
-        run: packer init -upgrade aws-debian.pkr.hcl
-
+        run: packer init -upgrade aws-debian.pkr.hcl || exit 1
+        working-directory: packer
+  
       - name: Run 'packer fmt'
         run: |
           if packer fmt -check aws-debian.pkr.hcl; then
@@ -36,13 +48,11 @@ jobs:
             echo "Packer template is not formatted correctly. Please format the template and try again."
             exit 1
           fi
-       
-      - name: Create ZIP Archive
-        run: zip -r webapp.zip .
-
+        working-directory: packer  
+          
       - name: Print Contents of Directory
         run: ls -l
-
+  
       - name: Run 'packer validate'
         run: |
           if packer validate aws-debian.pkr.hcl; then
@@ -51,3 +61,26 @@ jobs:
             echo "Packer template is not valid. Please fix the issues in the template and try again."
             exit 1
           fi
+        working-directory: packer
+  
+      - name: Set up AWS Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          aws configure set default.output json
+          aws configure set profile.dev.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          
+      - name: Build AMI with Packer
+        run: packer build aws-debian.pkr.hcl
+        working-directory: packer
+  
+      - name: Share AMI with Demo Account
+        run: |
+          AMI_ID=$(cat amazon-ebs/ami-id)
+
+          # Share the AMI with the specified AWS account ID
+            aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
+  
+      

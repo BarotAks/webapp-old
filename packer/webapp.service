@@ -1,14 +1,14 @@
 [Unit]
 Description=webapp
-After=network.target
+After=network.target cloud-final.service
 
 [Service]
 WorkingDirectory=/home/admin/webapp
 Environment=NODE_PORT=3000
 Type=simple
 User=admin
-ExecStart=/usr/bin/node /home/admin/webapp/index.js
+ExecStart=/usr/bin/npm run start
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=cloud-init.target
