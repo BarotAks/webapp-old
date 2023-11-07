@@ -73,16 +73,15 @@ jobs:
           aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           
       - name: Build AMI with Packer
-        run: packer build aws-debian.pkr.hcl
+        run: packer build aws-debian.pkr.hcl | tee packer-output.log
         working-directory: packer
   
       - name: Extract AMI ID from Packer Output
         run: |
-          AMI_ID=$(grep -Eo 'ami-[a-zA-Z0-9]{8,}' packer/packer-build.log)
+          AMI_ID=$(cat packer-output.log | grep -Eo 'ami-[a-zA-Z0-9]{8,}')
           echo "AMI ID: $AMI_ID" >> $GITHUB_ENV
   
       - name: Share AMI with Demo Account
         run: |
           aws ec2 modify-image-attribute --image-id ${{ env.AMI_ID }} --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
   
-      
