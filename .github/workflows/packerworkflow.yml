@@ -76,11 +76,13 @@ jobs:
         run: packer build aws-debian.pkr.hcl
         working-directory: packer
   
+      - name: Extract AMI ID from Packer Output
+        run: |
+          AMI_ID=$(grep -Eo 'ami-[a-zA-Z0-9]{8,}' packer/packer-build.log)
+          echo "AMI ID: $AMI_ID" >> $GITHUB_ENV
+  
       - name: Share AMI with Demo Account
         run: |
-          AMI_ID=$(cat amazon-ebs/ami-id)
-
-          # Share the AMI with the specified AWS account ID
-            aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
+          aws ec2 modify-image-attribute --image-id ${{ env.AMI_ID }} --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
   
       
