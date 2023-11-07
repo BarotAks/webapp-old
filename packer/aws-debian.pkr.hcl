@@ -93,4 +93,10 @@ build {
       "sudo rm -rf /var/lib/apt/lists/*"
     ]
   }
+  # Output AMI ID to a file
+  provisioner "shell" {
+    inline = [
+      "echo '${build.ami}' > amazon-ebs/ami-id"
+    ]
+  }
 }
