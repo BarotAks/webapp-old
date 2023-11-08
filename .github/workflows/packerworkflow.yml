@@ -73,6 +73,6 @@ jobs:
           aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           
       - name: Build AMI with Packer
-        run: packer build aws-debian.pkr.hcl | tee packer-output.log
+        run: packer build aws-debian.pkr.hcl 
         working-directory: packer
-  
+   
