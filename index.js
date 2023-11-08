@@ -8,11 +8,17 @@ const sequelize = require('./config/database');
 const Account = require('./models/account');
 const Assignment = require('./models/assignment');
 const logger = require('./logging');
+const StatsD = require('node-statsd');
 
 const app = express();
 app.use(bodyParser.json());
 
 const saltRounds = 10;
+
+const statsd = new StatsD({
+  host: 'localhost', 
+  port: 8125, 
+});
 
 // Middleware function to log requests
 app.use((req, res, next) => {
@@ -187,6 +193,8 @@ async function isAssignmentCreator(req, res, next) {
         assignment_created: assignment.assignment_created,
         assignment_updated: assignment.assignment_updated,
       });
+      // Increment custom metric for create assignment API call count
+      statsd.increment('api_create_assignment_count');
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -249,6 +257,8 @@ app.get('/v1/assignments', authenticateUser, async (req, res) => {
         assignment_updated: assignment.assignment_updated,
       }));
       res.status(200).json(formattedAssignments);
+      // Increment custom metric for fetch assignments API call count
+      statsd.increment('api_fetch_assignments_count');
     } else {
       // If no assignments are found, return a 404 Not Found response
       res.status(404).json({ error: 'No Assignments Found' });
@@ -285,6 +295,8 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
         assignment_updated: assignment.assignment_updated,
       };
       res.status(200).json(formattedAssignment);
+      // Increment custom metric for fetch assignments API call count
+      statsd.increment('api_fetch_assignments_count');
     } else {
       // If no assignment is found, return a 404 Not Found response
       res.status(404).json({ error: 'Assignment Not Found' });
@@ -313,6 +325,9 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
           assignment_updated: new Date(),
         });
         res.status(204).send();
+
+        // Increment custom metric for update assignment API call count
+        statsd.increment('api_update_assignment_count');
       } else {
         res.status(404).json({ error: 'Not Found' });
       }
@@ -332,6 +347,8 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
       if (assignment) {
         await assignment.destroy();
         res.status(204).send();
+       // Increment custom metric for delete assignment API call count
+        statsd.increment('api_delete_assignment_count');
       } else {
         res.status(404).json({ error: 'Not Found' });
       }
@@ -357,6 +374,9 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
         logger.info('Database connection successful.');
         // If the database connection is successful, return a 200 OK response
         res.status(200).send('OK');
+
+        // Increment custom metric for health check API call count
+        statsd.increment('api_health_check_count');
       } catch (error) {
         // If there's a database connection issue, return a 503 status code
         if (error.name === 'SequelizeConnectionError' || error.name === 'SequelizeHostNotFoundError') {
