@@ -7,11 +7,18 @@ const papa = require('papaparse');
 const sequelize = require('./config/database');
 const Account = require('./models/account');
 const Assignment = require('./models/assignment');
+const logger = require('./logging');
 
 const app = express();
 app.use(bodyParser.json());
 
 const saltRounds = 10;
+
+// Middleware function to log requests
+app.use((req, res, next) => {
+  logger.info(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
 // Load accounts from CSV after database synchronization
 
@@ -58,9 +65,9 @@ async function loadAccountsFromCSV() {
         console.log(`Invalid data: ${JSON.stringify(accountData)}`);
       }
     }
-    console.log('Accounts loaded successfully.');
+    logger.info('Accounts loaded successfully.');
   } catch (error) {
-    console.error('Error loading accounts from CSV:', error);
+    logger.error('Error loading accounts from CSV:', error);
   }
 }
 
@@ -71,15 +78,15 @@ dotenv.config(); // Load environment variables from .env file
 async function initializeDatabase() {
   try {
     await sequelize.sync();
-    console.log('Database synchronized.');
+    logger.info('Database synchronized.');
     await loadAccountsFromCSV();
     
     const port = process.env.PORT || 3000; // Default to port 3000 if PORT is not specified in .env
     app.listen(port, () => {
-      console.log(`Server is running on port ${port}`);
+      logger.info(`Server is running on port ${port}`);
     });
   } catch (error) {
-    console.error('Error initializing database:', error);
+    logger.error('Error initializing database:', error);
   }
 }
 
@@ -112,21 +119,21 @@ async function authenticateUser(req, res, next) {
     });
 
     if (!account) {
-      console.log('Account not found for email:', email);
+      logger.info('Account not found for email:', email);
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
     const passwordMatch = await bcrypt.compare(password, account.password);
     if (!passwordMatch) {
-      console.log('Authentication failed for email:', email);
+      logger.info('Authentication failed for email:', email);
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    console.log('Authentication successful for account:', account.email);
+    logger.info('Authentication successful for account:', account.email);
     req.user = account;
     next(); // Call the next middleware or route handler
   } catch (error) {
-    console.error('Error during authentication:', error);
+    logger.error('Error during authentication:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
@@ -334,6 +341,11 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
     }
   });
 
+// Middleware function to log errors
+  app.use((err, req, res, next) => {
+    logger.error(`Error occurred: ${err.message}`);
+    res.status(500).json({ error: 'Internal Server Error' });
+  });  
   
   app.get('/healthz', async (req, res) => {
     if (Object.keys(req.query).length > 0 || Object.keys(req.body).length > 0) {
@@ -342,17 +354,17 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
       try {
         // Check database connection
         await sequelize.authenticate();
-        console.log('Database connection successful.');
+        logger.info('Database connection successful.');
         // If the database connection is successful, return a 200 OK response
         res.status(200).send('OK');
       } catch (error) {
         // If there's a database connection issue, return a 503 status code
         if (error.name === 'SequelizeConnectionError' || error.name === 'SequelizeHostNotFoundError') {
-          console.error('Service unavailable:', error);
+          logger.error('Service unavailable:', error);
           res.status(503).json({ error: 'Service Unavailable' });
         } else {
           // For all other errors, return a 503 status code indicating service unavailability
-          console.error('Health check failed:', error);
+          logger.error('Health check failed:', error);
           res.status(503).json({ error: 'Service Unavailable' });
         }
       }

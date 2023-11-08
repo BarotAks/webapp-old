@@ -49,10 +49,4 @@ jobs:
         run: packer build aws-debian.pkr.hcl
         working-directory: packer
 
-      - name: Share AMI with Demo Account
-        run: |
-          AMI_ID=$(cat amazon-ebs/ami-id)
-
-          # Share the AMI with the specified AWS account ID
-          aws ec2 modify-image-attribute --image-id $AMI_ID --launch-permission "{\"Add\":[{\"UserId\":\"711372696784\"}]}"
 
