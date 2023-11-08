@@ -28,7 +28,7 @@ npm install
 
 # Copy the CloudWatch agent configuration file to the appropriate location
 echo "Copying CloudWatch configuration"
-sudo cp /tmp/cloudwatch-config.json /etc/amazon/amazon-cloudwatch-agent.json
+sudo cp /tmp/cloudwatch-config.json /home/admin/webapp/cloudwatch-config.json
 
 # Download and install the CloudWatch agent package
 echo "Installing and configuring CloudWatch agent"
@@ -46,7 +46,7 @@ sudo systemctl enable amazon-cloudwatch-agent
 
 # Copy the systemd service file and start the web application service
 echo "Setting up and starting the webapp service"
-sudo cp /tmp/webapp.service /etc/systemd/system
+sudo cp /tmp/webapp.service /etc/systemd/system/webapp.service
 sudo systemctl daemon-reload
 sudo systemctl start webapp.service
 sudo systemctl enable webapp.service
