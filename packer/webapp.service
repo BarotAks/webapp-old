@@ -7,7 +7,7 @@ WorkingDirectory=/home/admin/webapp
 Environment=NODE_PORT=3000
 Type=simple
 User=admin
-ExecStart=/usr/bin/npm run start
+ExecStart=/usr/bin/node /home/admin/webapp/index.js
 Restart=on-failure
 
 [Install]
