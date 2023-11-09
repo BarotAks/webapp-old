@@ -1,6 +1,6 @@
 [Unit]
 Description=webapp
-After=network.target
+After=network.target cloud-final.service
 
 [Service]
 WorkingDirectory=/home/admin/webapp
@@ -11,4 +11,4 @@ ExecStart=/usr/bin/node /home/admin/webapp/index.js
 Restart=on-failure
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=cloud-init.target
