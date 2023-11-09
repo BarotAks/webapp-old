@@ -195,6 +195,7 @@ async function isAssignmentCreator(req, res, next) {
       });
       // Increment custom metric for create assignment API call count
       statsd.increment('api_create_assignment_count');
+      statsd.send();
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
@@ -259,6 +260,7 @@ app.get('/v1/assignments', authenticateUser, async (req, res) => {
       res.status(200).json(formattedAssignments);
       // Increment custom metric for fetch assignments API call count
       statsd.increment('api_fetch_assignments_count');
+      statsd.send();
     } else {
       // If no assignments are found, return a 404 Not Found response
       res.status(404).json({ error: 'No Assignments Found' });
@@ -297,6 +299,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
       res.status(200).json(formattedAssignment);
       // Increment custom metric for fetch assignments API call count
       statsd.increment('api_fetch_assignments_count');
+      statsd.send();
     } else {
       // If no assignment is found, return a 404 Not Found response
       res.status(404).json({ error: 'Assignment Not Found' });
@@ -328,6 +331,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
 
         // Increment custom metric for update assignment API call count
         statsd.increment('api_update_assignment_count');
+        statsd.send();
       } else {
         res.status(404).json({ error: 'Not Found' });
       }
@@ -349,6 +353,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
         res.status(204).send();
        // Increment custom metric for delete assignment API call count
         statsd.increment('api_delete_assignment_count');
+        statsd.send();
       } else {
         res.status(404).json({ error: 'Not Found' });
       }
@@ -377,6 +382,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
 
         // Increment custom metric for health check API call count
         statsd.increment('api_health_check_count');
+        statsd.send();
       } catch (error) {
         // If there's a database connection issue, return a 503 status code
         if (error.name === 'SequelizeConnectionError' || error.name === 'SequelizeHostNotFoundError') {
