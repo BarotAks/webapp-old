@@ -43,7 +43,7 @@ source "amazon-ebs" "webapp" {
   ami_description = "AMI for CSYE6225"
   instance_type   = var.instance_type
   region          = var.region
-  source_ami      = "ami-0bde774ae2812b32f"
+  source_ami      = "ami-06db4d78cb1d3bbf9"
   ssh_username    = var.ssh_username
   ami_users       = ["547336217625", "711372696784"] # Replace with the DEV, DEMO AWS Account ID
 
