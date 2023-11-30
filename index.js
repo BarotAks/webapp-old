@@ -9,8 +9,11 @@ const Account = require('./models/account');
 const Assignment = require('./models/assignment');
 const logger = require('./logging');
 const StatsD = require('node-statsd');
+<<<<<<< HEAD
 const Submission = require('./models/submission');
 const { SNS } = require('aws-sdk'); // Import AWS SDK
+=======
+>>>>>>> e56033e75e09ce0ca72c34fe647b010cc2849ec8
 
 const app = express();
 app.use(bodyParser.json());
@@ -365,6 +368,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
     }
   });
 
+<<<<<<< HEAD
   const sns = new SNS();
 
   // POST endpoint to create a submission
@@ -437,6 +441,8 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
   });
   
 
+=======
+>>>>>>> e56033e75e09ce0ca72c34fe647b010cc2849ec8
 // Middleware function to log errors
   app.use((err, req, res, next) => {
     logger.error(`Error occurred: ${err.message}`);
