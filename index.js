@@ -9,11 +9,8 @@ const Account = require('./models/account');
 const Assignment = require('./models/assignment');
 const logger = require('./logging');
 const StatsD = require('node-statsd');
-<<<<<<< HEAD
 const Submission = require('./models/submission');
 const { SNS } = require('aws-sdk'); // Import AWS SDK
-=======
->>>>>>> e56033e75e09ce0ca72c34fe647b010cc2849ec8
 
 const app = express();
 app.use(bodyParser.json());
@@ -368,31 +365,31 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
     }
   });
 
-<<<<<<< HEAD
   const sns = new SNS();
 
   // POST endpoint to create a submission
-  app.post('/v1/submissions', authenticateUser, async (req, res) => {
-    const { assignment_id, submission_url } = req.body;
+  app.post('/v1/assignments/:id/submission', authenticateUser, async (req, res) => {
+    const { id } = req.params;
+    const { submission_url } = req.body;
   
-    if (!assignment_id || !submission_url) {
+    if (!submission_url) {
       return res.status(400).json({ error: 'Bad Request' });
     }
   
     try {
-      // Check if the user has exceeded the number of allowed attempts
-      const assignment = await Assignment.findByPk(assignment_id);
-  
-      if (!assignment) {
-        return res.status(404).json({ error: 'Assignment Not Found' });
+      // Check if the assignment exists and the user is the creator
+      const assignment = await Assignment.findByPk(id);
+      if (!assignment || assignment.creatorId !== req.user.id) {
+        return res.status(403).json({ error: 'Forbidden' });
       }
   
+      // Check if the user has exceeded the number of allowed attempts (retries)
       const numAttempts = assignment.num_of_attempts || 1; // Default to 1 if not specified
       const existingSubmissions = await Submission.count({
         where: {
-          assignment_id,
+          assignment_id: id,
           submission_date: {
-            [Sequelize.Op.gt]: new Date(new Date() - assignment.deadline * 60000), // Check if submission date is after the deadline
+            [Sequelize.Op.gt]: new Date(new Date() - assignment.deadline * 60000),
           },
         },
       });
@@ -401,20 +398,17 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
         return res.status(403).json({ error: 'Exceeded Maximum Number of Attempts' });
       }
   
-      // Create submission only if user is authenticated
+      // Check if the assignment's deadline has passed
+      if (new Date() > new Date(assignment.deadline)) {
+        return res.status(403).json({ error: 'Assignment Deadline Passed' });
+      }
+  
+      // Create submission
       const submission = await Submission.create({
-        assignment_id,
+        assignment_id: id,
         submission_url,
         submission_date: new Date(),
         submission_updated: new Date(),
-      });
-  
-      res.status(201).json({
-        id: submission.id,
-        assignment_id: submission.assignment_id,
-        submission_url: submission.submission_url,
-        submission_date: submission.submission_date,
-        submission_updated: submission.submission_updated,
       });
   
       // Post the URL to the SNS topic along with user info
@@ -434,15 +428,22 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
       // Increment custom metric for create submission API call count
       statsd.increment('api_create_submission_count');
       statsd.send();
+  
+      // Send response
+      res.status(201).json({
+        id: submission.id,
+        assignment_id: submission.assignment_id,
+        submission_url: submission.submission_url,
+        submission_date: submission.submission_date,
+        submission_updated: submission.submission_updated,
+      });
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
-  });
+  });  
   
 
-=======
->>>>>>> e56033e75e09ce0ca72c34fe647b010cc2849ec8
 // Middleware function to log errors
   app.use((err, req, res, next) => {
     logger.error(`Error occurred: ${err.message}`);
