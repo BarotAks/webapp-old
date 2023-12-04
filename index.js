@@ -11,6 +11,7 @@ const logger = require('./logging');
 const StatsD = require('node-statsd');
 const Submission = require('./models/submission');
 const { SNS } = require('aws-sdk'); // Import AWS SDK
+const { Sequelize } = require('sequelize');
 
 const app = express();
 app.use(bodyParser.json());
@@ -165,7 +166,7 @@ async function isAssignmentCreator(req, res, next) {
 }
   
   // POST endpoint to create an assignment
-  app.post('/v1/assignments', authenticateUser, async (req, res) => {
+  app.post('/v2/assignments', authenticateUser, async (req, res) => {
     const { name, points, num_of_attempts, deadline } = req.body;
   
     if (!name || !points || !num_of_attempts || !deadline) {
@@ -205,7 +206,7 @@ async function isAssignmentCreator(req, res, next) {
   });
   
   // // GET endpoint to fetch assignment details by ID
-  // app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
+  // app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
   //   const { id } = req.params;
     
   //   try {
@@ -237,7 +238,7 @@ async function isAssignmentCreator(req, res, next) {
   // });
 
   // GET endpoint to fetch assignments created by the logged-in user
-app.get('/v1/assignments', authenticateUser, async (req, res) => {
+app.get('/v2/assignments', authenticateUser, async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -274,7 +275,7 @@ app.get('/v1/assignments', authenticateUser, async (req, res) => {
   }
 });
 
-app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
+app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
 
@@ -316,7 +317,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
   
   
   // PUT endpoint to update an assignment (only by the creator)
-  app.put('/v1/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
+  app.put('/v2/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
     const { id } = req.params;
     try {
       const { name, points, num_of_attempts, deadline } = req.body;
@@ -346,7 +347,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
   
   
 // DELETE endpoint to delete an assignment (only by the creator)
-  app.delete('/v1/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
+  app.delete('/v2/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
     const { id } = req.params;
     try {
       const assignment = await Assignment.findByPk(id);
@@ -368,7 +369,7 @@ app.get('/v1/assignments/:id', authenticateUser, async (req, res) => {
   const sns = new SNS();
 
   // POST endpoint to create a submission
-  app.post('/v1/assignments/:id/submission', authenticateUser, async (req, res) => {
+  app.post('/v2/assignments/:id/submission', authenticateUser, async (req, res) => {
     const { id } = req.params;
     const { submission_url } = req.body;
   
@@ -489,7 +490,7 @@ app.use((req, res) => {
 
 
 // PATCH endpoint to update assignments
-app.patch('/v1/assignments/:id', (req, res) => {
+app.patch('/v2/assignments/:id', (req, res) => {
   res.status(405).json({ error: 'Method Not Allowed' });
 });
 
