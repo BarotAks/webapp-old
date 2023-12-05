@@ -49,4 +49,25 @@ jobs:
         run: packer build aws-debian.pkr.hcl
         working-directory: packer
 
+      - name: Get AMI ID and save it in Github env
+        run: |
+          echo AMI_ID=$(jq -r '.builds[-1].artifact_id' ./packer/manifest.json | cut -d ":" -f2) >> $GITHUB_ENV
+        shell: bash
 
+      - name: Create New Launch Template Version
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ec2 create-launch-template-version --launch-template-name web-app-launch-template --source-version 1 --launch-template-data '{"ImageId":"${{ env.AMI_ID }}"}'
+          echo "New Launch template version created"
+
+      - name: Instance refresh to use new Launch template version
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name web-app-auto-scaling-group
+          echo "Instance refresh completed"
