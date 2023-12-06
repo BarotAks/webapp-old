@@ -23,11 +23,11 @@ const statsd = new StatsD({
   port: 8125, 
 });
 
-// // Middleware function to log requests
-// app.use((req, res, next) => {
-//   logger.info(`Incoming request: ${req.method} ${req.url}`);
-//   next();
-// });
+// Middleware function to log requests
+app.use((req, res, next) => {
+  logger.info(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
 // Load accounts from CSV after database synchronization
 
