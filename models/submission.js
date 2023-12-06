@@ -1,5 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Assignment = require('./assignment');
 
 const Submission = sequelize.define('submission', {
   id: {
@@ -11,7 +12,12 @@ const Submission = sequelize.define('submission', {
   assignment_id: {
     type: Sequelize.UUID,
     allowNull: false,
-    readOnly: true,
+    references: {
+      model: 'Assignment',
+      key: 'id',
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   submission_url: {
     type: Sequelize.STRING,

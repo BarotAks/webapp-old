@@ -424,7 +424,12 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
         TopicArn: process.env.SNS_TOPIC_ARN, // Replace with your SNS topic ARN
       };
   
-      await sns.publish(snsParams).promise();
+      try {
+        await sns.publish(snsParams).promise();
+      } catch (snsError) {
+        console.error('Error publishing to SNS:', snsError);
+        return res.status(500).json({ error: 'Internal Server Error: SNS Publish Failed' });
+      }
   
       // Increment custom metric for create submission API call count
       statsd.increment('api_create_submission_count');
@@ -439,8 +444,13 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
         submission_updated: submission.submission_updated,
       });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Internal Server Error' });
+      console.error('Error creating submission:', error);
+  
+      if (error.name === 'SequelizeValidationError') {
+        return res.status(400).json({ error: 'Bad Request: Validation Error', details: error.errors });
+      }
+  
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   });  
   
@@ -478,7 +488,6 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
       }
     }
   });
-  
   
   
 
