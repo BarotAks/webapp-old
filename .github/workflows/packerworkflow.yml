@@ -63,15 +63,40 @@ jobs:
           fi
         working-directory: packer
   
-      # - name: Set up AWS Credentials
-      #   run: |
-      #     aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws configure set default.region us-east-1
-      #     aws configure set default.output json
-      #     aws configure set profile.dev.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}  
+      - name: Set up AWS Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region us-east-1
+          aws configure set default.output json
+          aws configure set profile.dev.aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set profile.dev.aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}  
           
-      # - name: Build AMI with Packer
-      #   run: packer build aws-debian.pkr.hcl
-      #   working-directory: packer
+      - name: Build AMI with Packer
+        run: packer build aws-debian.pkr.hcl
+        working-directory: packer
+
+      - name: Get AMI ID and save it in Github env
+        run: |
+          echo AMI_ID=$(jq -r '.builds[-1].artifact_id' ./packer/manifest.json | cut -d ":" -f2) >> $GITHUB_ENV
+        shell: bash
+
+      - name: Create New Launch Template Version
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws ec2 create-launch-template-version --launch-template-name web-app-launch-template --source-version 1 --launch-template-data '{"ImageId":"${{ env.AMI_ID }}"}'
+          echo "New Launch template version created"
+
+      - name: Instance refresh to use new Launch template version
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEMO_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+        run: |
+          aws autoscaling start-instance-refresh --auto-scaling-group-name web-app-auto-scaling-group
+          echo "Instance refresh completed"
+
+      
