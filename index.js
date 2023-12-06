@@ -480,7 +480,6 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
   });
   
   
-  
 
   
 // Catch unsupported HTTP methods
