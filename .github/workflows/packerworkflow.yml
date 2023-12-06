@@ -87,7 +87,7 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEMO_AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ secrets.AWS_REGION }}
         run: |
-          aws ec2 create-launch-template-version --launch-template-name web-app-launch-template --source-version 1 --launch-template-data '{"ImageId":"${{ env.AMI_ID }}"}'
+          aws ec2 create-launch-template-version --launch-template-name csye6225_asg --source-version 1 --launch-template-data '{"ImageId":"${{ env.AMI_ID }}"}'
           echo "New Launch template version created"
 
       - name: Instance refresh to use new Launch template version
