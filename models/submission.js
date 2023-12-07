@@ -13,7 +13,7 @@ const Submission = sequelize.define('submission', {
     type: Sequelize.UUID,
     allowNull: false,
     references: {
-      model: 'Assignment',
+      model: 'assignment',
       key: 'id',
     },
     onUpdate: 'CASCADE',

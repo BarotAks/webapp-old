@@ -1,5 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const Submission = require('./submission');
+const Account = require('./account');
 
 const Assignment = sequelize.define('assignment', {
   id: {
@@ -47,5 +49,9 @@ const Assignment = sequelize.define('assignment', {
     allowNull: false,
   },
 });
+
+// Set up association
+Assignment.hasMany(Submission, { foreignKey: 'assignment_id' });
+Submission.belongsTo(Assignment, { foreignKey: 'assignment_id' });
 
 module.exports = Assignment;
