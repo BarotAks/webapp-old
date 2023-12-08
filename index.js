@@ -418,10 +418,12 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
         assignment_id: submission.assignment_id,
         submission_url: submission.submission_url,
       };
-  
+
+      SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:711372696784:WebAppSnsTopic';
+      
       const snsParams = {
         Message: JSON.stringify(snsMessage),
-        TopicArn: process.env.SNS_TOPIC_ARN, // Replace with your SNS topic ARN
+        TopicArn: SNS_TOPIC_ARN, // Replace with your SNS topic ARN
       };
   
       try {
