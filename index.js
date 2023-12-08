@@ -166,7 +166,7 @@ async function isAssignmentCreator(req, res, next) {
 }
   
   // POST endpoint to create an assignment
-  app.post('/v2/assignments', authenticateUser, async (req, res) => {
+  app.post('/v3/assignments', authenticateUser, async (req, res) => {
     const { name, points, num_of_attempts, deadline } = req.body;
   
     if (!name || !points || !num_of_attempts || !deadline) {
@@ -238,7 +238,7 @@ async function isAssignmentCreator(req, res, next) {
   // });
 
   // GET endpoint to fetch assignments created by the logged-in user
-app.get('/v2/assignments', authenticateUser, async (req, res) => {
+app.get('/v3/assignments', authenticateUser, async (req, res) => {
   const userId = req.user.id;
 
   try {
@@ -275,7 +275,7 @@ app.get('/v2/assignments', authenticateUser, async (req, res) => {
   }
 });
 
-app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
+app.get('/v3/assignments/:id', authenticateUser, async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
 
@@ -317,7 +317,7 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
   
   
   // PUT endpoint to update an assignment (only by the creator)
-  app.put('/v2/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
+  app.put('/v3/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
     const { id } = req.params;
     try {
       const { name, points, num_of_attempts, deadline } = req.body;
@@ -347,7 +347,7 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
   
   
 // DELETE endpoint to delete an assignment (only by the creator)
-  app.delete('/v2/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
+  app.delete('/v3/assignments/:id', authenticateUser, isAssignmentCreator, async (req, res) => {
     const { id } = req.params;
     try {
       const assignment = await Assignment.findByPk(id);
@@ -369,7 +369,7 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
   const sns = new SNS();
 
   // POST endpoint to create a submission
-  app.post('/v2/assignments/:id/submission', authenticateUser, async (req, res) => {
+  app.post('/v3/assignments/:id/submission', authenticateUser, async (req, res) => {
     const { id } = req.params;
     const { submission_url } = req.body;
   
@@ -420,7 +420,7 @@ app.get('/v2/assignments/:id', authenticateUser, async (req, res) => {
       };
 
       SNS_TOPIC_ARN = 'arn:aws:sns:us-east-1:711372696784:WebAppSnsTopic';
-      
+
       const snsParams = {
         Message: JSON.stringify(snsMessage),
         TopicArn: SNS_TOPIC_ARN, // Replace with your SNS topic ARN
@@ -501,7 +501,7 @@ app.use((req, res) => {
 
 
 // PATCH endpoint to update assignments
-app.patch('/v2/assignments/:id', (req, res) => {
+app.patch('/v3/assignments/:id', (req, res) => {
   res.status(405).json({ error: 'Method Not Allowed' });
 });
 
@@ -513,4 +513,4 @@ module.exports = app; // Export the Express app instance
   
   // app.listen(4000, () => {
   //   console.log('Server is running on port 4000');
-  // });
+  // }); 
