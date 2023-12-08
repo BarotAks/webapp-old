@@ -12,12 +12,6 @@ const Submission = sequelize.define('submission', {
   assignment_id: {
     type: Sequelize.UUID,
     allowNull: false,
-    references: {
-      model: 'assignment',
-      key: 'id',
-    },
-    onUpdate: 'CASCADE',
-    onDelete: 'CASCADE',
   },
   submission_url: {
     type: Sequelize.STRING,
@@ -25,17 +19,14 @@ const Submission = sequelize.define('submission', {
     validate: {
       isUrl: true,
     },
-    readOnly: true,
   },
   submission_date: {
     type: Sequelize.DATE,
     allowNull: false,
-    readOnly: true,
   },
   submission_updated: {
     type: Sequelize.DATE,
     allowNull: false,
-    readOnly: true,
   },
 });
 
